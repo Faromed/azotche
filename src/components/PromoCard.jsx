@@ -46,7 +46,7 @@ export default function PromoCard({ data }) {
         await navigator.share({
           files: [file],
           title: 'AZÔTCHÉ',
-          text: 'Téléchargez AZÔTCHÉ via  et trouvez les meilleurs artisans du Bénin !',
+          text: 'Téléchargez AZÔTCHÉ via https://azotche.vercel.app/ et trouvez les meilleurs artisans du Bénin !',
         });
       } else {
         download();

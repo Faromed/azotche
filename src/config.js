@@ -1,7 +1,7 @@
 const config = {
   appName: 'AZÔTCHÉ',
   appSlogan: 'Les talents de chez nous, à portée de main',
-  apkDownloadUrl: 'https://github.com/Faromed/azotche/releases/download/1.0.0/azotche.apk',
+  apkDownloadUrl: 'https://github.com/Faromed/azotche/releases/download/1.1.0/azotche.apk',
   appVersion: '1.0.0',
   supportEmail: 'azotche@gmail.com',
   supportPhone: '+229 01 64 97 97 90',
