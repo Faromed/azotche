@@ -12,11 +12,11 @@ export default function Footer() {
         <div className="footer-grid">
           <div>
             <Link to="/" className="navbar-logo" style={{ color: 'white', marginBottom: 4 }}>
-              <div className="logo-icon">AZ</div>
+              <img src="/logo.png" alt="AZÔTCHÉ" className="logo-img" />
               <span>AZÔ<span className="logo-accent">TCHÉ</span></span>
             </Link>
             <p className="footer-brand-desc">
-              La plateforme qui connecte clients et artisans de confiance au Bénin. 
+              La plateforme qui connecte clients et artisans de confiance au Bénin.
               Trouvez les meilleurs talents près de chez vous.
             </p>
             <div className="footer-socials">
@@ -43,9 +43,15 @@ export default function Footer() {
           </div>
           <div className="footer-column">
             <h4>Contact</h4>
-            <a href={`mailto:${config.supportEmail}`}><FiMail style={{ verticalAlign: 'middle', marginRight: 8 }} />{config.supportEmail}</a>
-            <a href={`tel:${config.supportPhone.replace(/\s/g,'')}`}><FiPhone style={{ verticalAlign: 'middle', marginRight: 8 }} />{config.supportPhone}</a>
-            <a href="#"><FiMapPin style={{ verticalAlign: 'middle', marginRight: 8 }} />{config.address}</a>
+            <a href={`mailto:${config.supportEmail}`}>
+              <FiMail style={{ verticalAlign: 'middle', marginRight: 8 }} />{config.supportEmail}
+            </a>
+            <a href={`tel:${config.supportPhone.replace(/\s/g, '')}`}>
+              <FiPhone style={{ verticalAlign: 'middle', marginRight: 8 }} />{config.supportPhone}
+            </a>
+            <a href="#">
+              <FiMapPin style={{ verticalAlign: 'middle', marginRight: 8 }} />{config.address}
+            </a>
           </div>
         </div>
         <div className="footer-bottom">

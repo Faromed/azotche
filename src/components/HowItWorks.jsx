@@ -17,7 +17,7 @@ export default function HowItWorks() {
           En <span className="accent">3 étapes</span> simples
         </h2>
         <p className="section-subtitle reveal">
-          Pas besoin de créer un compte pour trouver un artisan. C'est gratuit et instantané.
+          Pas besoin de créer un compte pour trouver un artisan. C&apos;est gratuit et instantané.
         </p>
         <div className="steps">
           {steps.map((s, i) => (

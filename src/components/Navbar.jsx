@@ -27,7 +27,7 @@ export default function Navbar() {
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="navbar-inner">
         <Link to="/" className="navbar-logo">
-          <div className="logo-icon">AZ</div>
+          <img src="/logo.png" alt="AZÔTCHÉ" className="logo-img" />
           <span>AZÔ<span className="logo-accent">TCHÉ</span></span>
         </Link>
 
@@ -43,7 +43,11 @@ export default function Navbar() {
           </a>
         </div>
 
-        <button className={`navbar-toggle ${mobileOpen ? 'open' : ''}`} onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
+        <button
+          className={`navbar-toggle ${mobileOpen ? 'open' : ''}`}
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Menu"
+        >
           <span /><span /><span />
         </button>
       </div>

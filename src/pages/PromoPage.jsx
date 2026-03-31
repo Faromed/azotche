@@ -3,87 +3,132 @@ import PromoCard from '../components/PromoCard';
 const promoCards = [
   {
     id: 1,
-    emoji: '🪡',
+    emoji: '🪡✨',
     headline: 'Tu cherches un bon tailleur dans ta zone ?',
-    subline: 'Trouve les meilleurs boss de couture sur AZÔTCHÉ ! Consulte leurs réalisations et contacte-les directement.',
-    gradient: 'linear-gradient(135deg, #FF6B35, #E55A25)',
+    subline: 'Trouve les meilleurs boss de couture sur AZÔTCHÉ ! Consulte leurs créations et contacte-les directement.',
+    tag: 'COUTURE',
+    gradient: 'linear-gradient(145deg, #FF6B35 0%, #D32F2F 50%, #B71C1C 100%)',
   },
   {
     id: 2,
-    emoji: '🔧',
+    emoji: '🔧💧',
     headline: 'Fatigué des faux rendez-vous de ton plombier ?',
-    subline: 'Sur AZÔTCHÉ, trouve des artisans fiables avec des avis vérifiés. Plus de mauvaises surprises !',
-    gradient: 'linear-gradient(135deg, #2196F3, #1565C0)',
+    subline: 'Sur AZÔTCHÉ, trouve des artisans fiables avec des avis vérifiés. Fini les galères !',
+    tag: 'PLOMBERIE',
+    gradient: 'linear-gradient(145deg, #1565C0 0%, #0D47A1 50%, #0A1929 100%)',
   },
   {
     id: 3,
-    emoji: '💇‍♀️',
+    emoji: '💇‍♀️💅',
     headline: 'Ton coiffeur te ghost encore ?',
-    subline: 'Découvre de nouveaux talents capillaires près de chez toi sur AZÔTCHÉ. Notes, photos, contact direct !',
-    gradient: 'linear-gradient(135deg, #E91E63, #AD1457)',
+    subline: 'Découvre de nouveaux talents capillaires près de chez toi. Notes, photos, contact direct !',
+    tag: 'BEAUTÉ',
+    gradient: 'linear-gradient(145deg, #E91E63 0%, #AD1457 50%, #880E4F 100%)',
   },
   {
     id: 4,
-    emoji: '⚡',
-    headline: 'Ton électricien ne répond plus au téléphone ?',
-    subline: 'Trouve un pro disponible maintenant sur AZÔTCHÉ. Regarde ses réalisations et appelle-le en 1 clic.',
-    gradient: 'linear-gradient(135deg, #FF9800, #E65100)',
+    emoji: '⚡🔌',
+    headline: 'Panne de courant ? Ton électricien est introuvable ?',
+    subline: 'Trouve un pro disponible MAINTENANT sur AZÔTCHÉ. Avis clients, réalisations, 1 clic pour appeler.',
+    tag: 'ÉLECTRICITÉ',
+    gradient: 'linear-gradient(145deg, #FF9800 0%, #E65100 50%, #BF360C 100%)',
   },
   {
     id: 5,
-    emoji: '🎨',
-    headline: 'Marre de chercher un bon peintre ?',
-    subline: 'Les pros vérifiés de ta ville sont sur AZÔTCHÉ. Galerie de travaux, notes clients, contact WhatsApp.',
-    gradient: 'linear-gradient(135deg, #9C27B0, #6A1B9A)',
+    emoji: '🎨🖌️',
+    headline: 'Tu veux repeindre ta maison mais tu connais pas de bon peintre ?',
+    subline: 'Les pros vérifiés de ta ville sont tous sur AZÔTCHÉ. Galerie de travaux, notes clients.',
+    tag: 'PEINTURE',
+    gradient: 'linear-gradient(145deg, #7B1FA2 0%, #4A148C 50%, #311B92 100%)',
   },
   {
     id: 6,
-    emoji: '👗',
-    headline: 'Tu veux une robe en wax sur mesure ?',
-    subline: 'Les meilleures couturières du Bénin t\'attendent sur AZÔTCHÉ. Regarde leurs créations et choisis !',
-    gradient: 'linear-gradient(135deg, #F44336, #C62828)',
+    emoji: '👗🌺',
+    headline: 'Une robe en wax sur mesure pour cet événement ?',
+    subline: 'Les meilleures couturières du Bénin t\'attendent sur AZÔTCHÉ. Regarde leurs créations et choisis la tienne !',
+    tag: 'MODE',
+    gradient: 'linear-gradient(145deg, #C62828 0%, #880E4F 50%, #4A148C 100%)',
   },
   {
     id: 7,
-    emoji: '🔩',
-    headline: 'Besoin d\'un soudeur en urgence ?',
-    subline: 'AZÔTCHÉ te connecte avec les meilleurs artisans du quartier. Vérifiés, notés, joignables direct.',
-    gradient: 'linear-gradient(135deg, #607D8B, #37474F)',
+    emoji: '🔩⚙️',
+    headline: 'Besoin d\'un soudeur pour ton portail ?',
+    subline: 'AZÔTCHÉ te connecte avec les meilleurs artisans du quartier. Vérifiés, notés, joignables en 1 clic.',
+    tag: 'SOUDURE',
+    gradient: 'linear-gradient(145deg, #455A64 0%, #263238 50%, #1A1A2E 100%)',
   },
   {
     id: 8,
-    emoji: '🍽️',
+    emoji: '🍽️🔥',
     headline: 'Envie de bonne bouffe locale ?',
-    subline: 'Trouve les meilleurs restaurants et traiteurs de ta zone sur AZÔTCHÉ. Photos des plats et avis clients !',
-    gradient: 'linear-gradient(135deg, #4CAF50, #2E7D32)',
+    subline: 'Trouve les meilleurs restaurants et traiteurs de ta zone. Photos des plats, avis clients et contact direct !',
+    tag: 'FOOD',
+    gradient: 'linear-gradient(145deg, #2E7D32 0%, #1B5E20 50%, #0D3B0F 100%)',
   },
   {
     id: 9,
-    emoji: '🏗️',
-    headline: 'Tu construis ta maison ?',
-    subline: 'Trouve maçons, carreleurs, peintres et électriciens de confiance sur AZÔTCHÉ. Tous vérifiés !',
-    gradient: 'linear-gradient(135deg, #795548, #4E342E)',
+    emoji: '🏗️🧱',
+    headline: 'Tu construis ta maison et tu galères à trouver de bons ouvriers ?',
+    subline: 'Maçons, carreleurs, ferrailleurs — tous vérifiés et notés sur AZÔTCHÉ !',
+    tag: 'BTP',
+    gradient: 'linear-gradient(145deg, #6D4C41 0%, #4E342E 50%, #3E2723 100%)',
   },
   {
     id: 10,
-    emoji: '🌟',
+    emoji: '🌟🚀',
     headline: 'Tu es artisan ? Montre ton talent au Bénin entier !',
-    subline: 'Inscris-toi gratuitement sur AZÔTCHÉ et reçois des clients chaque jour. Ton savoir-faire mérite d\'être vu.',
-    gradient: 'linear-gradient(135deg, #FFD700, #FF8F00)',
+    subline: 'Inscris-toi gratuitement sur AZÔTCHÉ. Publie tes réalisations et reçois des clients chaque jour.',
+    tag: 'ARTISANS',
+    slogan: 'Ton savoir-faire mérite d\'être vu 🇧🇯',
+    gradient: 'linear-gradient(145deg, #FF6B35 0%, #FFB300 50%, #FF6B35 100%)',
   },
   {
     id: 11,
-    emoji: '📱',
-    headline: 'Chercher un artisan sur Facebook c\'est fini !',
-    subline: 'AZÔTCHÉ regroupe tous les pros de ta ville. Recherche par métier, par zone. C\'est rapide et gratuit.',
-    gradient: 'linear-gradient(135deg, #00BCD4, #00838F)',
+    emoji: '📱🔍',
+    headline: 'Chercher un artisan sur Facebook c\'est terminé !',
+    subline: 'AZÔTCHÉ regroupe tous les pros de ta ville en une seule appli. Recherche par métier, par zone. Gratuit !',
+    tag: 'DIGITAL',
+    gradient: 'linear-gradient(145deg, #00838F 0%, #006064 50%, #004D40 100%)',
   },
   {
     id: 12,
-    emoji: '🛠️',
+    emoji: '🤝📢',
     headline: 'Tu connais un bon artisan ? Dis-lui de s\'inscrire !',
-    subline: 'Plus on est nombreux sur AZÔTCHÉ, plus on facilite la vie de tout le monde. Partagez cette appli !',
-    gradient: 'linear-gradient(135deg, #FF6B35, #2E7D32)',
+    subline: 'Plus on est nombreux sur AZÔTCHÉ, plus on facilite la vie de tout le monde. Partage cette affiche !',
+    tag: 'COMMUNAUTÉ',
+    gradient: 'linear-gradient(145deg, #FF6B35 0%, #2E7D32 100%)',
+  },
+  {
+    id: 13,
+    emoji: '🚗🔧',
+    headline: 'Ta voiture est en panne et ton garagiste est au village ?',
+    subline: 'Trouve un mécanicien de confiance près de toi sur AZÔTCHÉ. Avis, réalisations, appel direct !',
+    tag: 'MÉCANIQUE',
+    gradient: 'linear-gradient(145deg, #37474F 0%, #1C1C2E 50%, #0A0A14 100%)',
+  },
+  {
+    id: 14,
+    emoji: '💻🛠️',
+    headline: 'Ton téléphone ou ton ordi est cassé ?',
+    subline: 'Trouve les meilleurs réparateurs tech de ta zone sur AZÔTCHÉ. Vérifiés et notés par de vrais clients.',
+    tag: 'TECH',
+    gradient: 'linear-gradient(145deg, #1E88E5 0%, #1565C0 50%, #0D47A1 100%)',
+  },
+  {
+    id: 15,
+    emoji: '🎂🍰',
+    headline: 'Tu cherches une bonne pâtissière pour ton anniversaire ?',
+    subline: 'Les meilleurs gâteaux du Bénin sont sur AZÔTCHÉ ! Regarde les photos et passe ta commande.',
+    tag: 'PÂTISSERIE',
+    gradient: 'linear-gradient(145deg, #F48FB1 0%, #E91E63 50%, #C2185B 100%)',
+  },
+  {
+    id: 16,
+    emoji: '🪑🪚',
+    headline: 'Un meuble sur mesure ? Un menuisier fiable ?',
+    subline: 'Les artisans du bois les plus talentueux de ta ville sont tous référencés sur AZÔTCHÉ.',
+    tag: 'MENUISERIE',
+    gradient: 'linear-gradient(145deg, #8D6E63 0%, #5D4037 50%, #3E2723 100%)',
   },
 ];
 
@@ -92,13 +137,14 @@ export default function PromoPage() {
     <div className="promo-page">
       <div className="container">
         <div className="promo-intro">
-          <div className="section-tag">📣 Affiches Promo</div>
+          <div className="section-tag">📣 Affiches Promotionnelles</div>
           <h1 className="section-title">
-            Partagez <span className="accent">AZÔTCHÉ</span> autour de vous
+            Partagez <span className="accent">AZÔTCHÉ</span> sur vos réseaux
           </h1>
           <p>
-            Téléchargez ces affiches et partagez-les sur votre statut WhatsApp, 
-            Facebook, Instagram ou TikTok pour faire connaître les artisans de votre quartier !
+            Téléchargez ces affiches au format carré (1080×1080) optimisé pour
+            les statuts WhatsApp, stories Instagram, posts Facebook et TikTok.
+            Aidez-nous à faire connaître les artisans du Bénin ! 🇧🇯
           </p>
         </div>
 
