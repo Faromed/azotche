@@ -1,9 +1,11 @@
 import PromoCard from '../components/PromoCard';
+import { FiDownload, FiShare2 } from 'react-icons/fi';
 
 const promoCards = [
   {
     id: 1,
     emoji: '🪡✨',
+    image: '/images/couturiere.png',
     headline: 'Tu cherches un bon tailleur dans ta zone ?',
     subline: 'Trouve les meilleurs boss de couture sur AZÔTCHÉ ! Consulte leurs créations et contacte-les directement.',
     tag: 'COUTURE',
@@ -12,6 +14,7 @@ const promoCards = [
   {
     id: 2,
     emoji: '🔧💧',
+    image: '/images/plombier.png',
     headline: 'Fatigué des faux rendez-vous de ton plombier ?',
     subline: 'Sur AZÔTCHÉ, trouve des artisans fiables avec des avis vérifiés. Fini les galères !',
     tag: 'PLOMBERIE',
@@ -20,6 +23,7 @@ const promoCards = [
   {
     id: 3,
     emoji: '💇‍♀️💅',
+    image: '/images/coiffeur.png',
     headline: 'Ton coiffeur te ghost encore ?',
     subline: 'Découvre de nouveaux talents capillaires près de chez toi. Notes, photos, contact direct !',
     tag: 'BEAUTÉ',
@@ -28,6 +32,7 @@ const promoCards = [
   {
     id: 4,
     emoji: '⚡🔌',
+    image: '/images/électricien.png',
     headline: 'Panne de courant ? Ton électricien est introuvable ?',
     subline: 'Trouve un pro disponible MAINTENANT sur AZÔTCHÉ. Avis clients, réalisations, 1 clic pour appeler.',
     tag: 'ÉLECTRICITÉ',
@@ -36,6 +41,7 @@ const promoCards = [
   {
     id: 5,
     emoji: '🎨🖌️',
+    image: '/images/peintre.png',
     headline: 'Tu veux repeindre ta maison mais tu connais pas de bon peintre ?',
     subline: 'Les pros vérifiés de ta ville sont tous sur AZÔTCHÉ. Galerie de travaux, notes clients.',
     tag: 'PEINTURE',
@@ -44,6 +50,7 @@ const promoCards = [
   {
     id: 6,
     emoji: '👗🌺',
+    image: '/images/tailleur.png',
     headline: 'Une robe en wax sur mesure pour cet événement ?',
     subline: 'Les meilleures couturières du Bénin t\'attendent sur AZÔTCHÉ. Regarde leurs créations et choisis la tienne !',
     tag: 'MODE',
@@ -52,6 +59,7 @@ const promoCards = [
   {
     id: 7,
     emoji: '🔩⚙️',
+    image: '/images/logo.png',
     headline: 'Besoin d\'un soudeur pour ton portail ?',
     subline: 'AZÔTCHÉ te connecte avec les meilleurs artisans du quartier. Vérifiés, notés, joignables en 1 clic.',
     tag: 'SOUDURE',
@@ -60,6 +68,7 @@ const promoCards = [
   {
     id: 8,
     emoji: '🍽️🔥',
+    image: '/images/restaurant.png',
     headline: 'Envie de bonne bouffe locale ?',
     subline: 'Trouve les meilleurs restaurants et traiteurs de ta zone. Photos des plats, avis clients et contact direct !',
     tag: 'FOOD',
@@ -68,6 +77,7 @@ const promoCards = [
   {
     id: 9,
     emoji: '🏗️🧱',
+    image: '/images/btp.png',
     headline: 'Tu construis ta maison et tu galères à trouver de bons ouvriers ?',
     subline: 'Maçons, carreleurs, ferrailleurs — tous vérifiés et notés sur AZÔTCHÉ !',
     tag: 'BTP',
@@ -76,6 +86,7 @@ const promoCards = [
   {
     id: 10,
     emoji: '🌟🚀',
+    image: '/images/artisans.png',
     headline: 'Tu es artisan ? Montre ton talent au Bénin entier !',
     subline: 'Inscris-toi gratuitement sur AZÔTCHÉ. Publie tes réalisations et reçois des clients chaque jour.',
     tag: 'ARTISANS',
@@ -85,6 +96,7 @@ const promoCards = [
   {
     id: 11,
     emoji: '📱🔍',
+    image: '/images/logo.png',
     headline: 'Chercher un artisan sur Facebook c\'est terminé !',
     subline: 'AZÔTCHÉ regroupe tous les pros de ta ville en une seule appli. Recherche par métier, par zone. Gratuit !',
     tag: 'DIGITAL',
@@ -93,6 +105,7 @@ const promoCards = [
   {
     id: 12,
     emoji: '🤝📢',
+    image: '/images/communauté.png',
     headline: 'Tu connais un bon artisan ? Dis-lui de s\'inscrire !',
     subline: 'Plus on est nombreux sur AZÔTCHÉ, plus on facilite la vie de tout le monde. Partage cette affiche !',
     tag: 'COMMUNAUTÉ',
@@ -101,6 +114,7 @@ const promoCards = [
   {
     id: 13,
     emoji: '🚗🔧',
+    image: '/images/logo.png',
     headline: 'Ta voiture est en panne et ton garagiste est au village ?',
     subline: 'Trouve un mécanicien de confiance près de toi sur AZÔTCHÉ. Avis, réalisations, appel direct !',
     tag: 'MÉCANIQUE',
@@ -109,6 +123,7 @@ const promoCards = [
   {
     id: 14,
     emoji: '💻🛠️',
+    image: '/images/logo.png',
     headline: 'Ton téléphone ou ton ordi est cassé ?',
     subline: 'Trouve les meilleurs réparateurs tech de ta zone sur AZÔTCHÉ. Vérifiés et notés par de vrais clients.',
     tag: 'TECH',
@@ -117,6 +132,7 @@ const promoCards = [
   {
     id: 15,
     emoji: '🎂🍰',
+    image: '/images/logo.png',
     headline: 'Tu cherches une bonne pâtissière pour ton anniversaire ?',
     subline: 'Les meilleurs gâteaux du Bénin sont sur AZÔTCHÉ ! Regarde les photos et passe ta commande.',
     tag: 'PÂTISSERIE',
@@ -125,6 +141,7 @@ const promoCards = [
   {
     id: 16,
     emoji: '🪑🪚',
+    image: '/images/logo.png',
     headline: 'Un meuble sur mesure ? Un menuisier fiable ?',
     subline: 'Les artisans du bois les plus talentueux de ta ville sont tous référencés sur AZÔTCHÉ.',
     tag: 'MENUISERIE',
@@ -133,6 +150,48 @@ const promoCards = [
 ];
 
 export default function PromoPage() {
+  const downloadImage = async (imageSrc, fileName) => {
+    try {
+      const response = await fetch(imageSrc);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Erreur lors du téléchargement:', error);
+    }
+  };
+
+  const shareImage = async (imageSrc, tag) => {
+    try {
+      const response = await fetch(imageSrc);
+      const blob = await response.blob();
+      const file = new File([blob], `azotche-${tag.toLowerCase()}.png`, { type: 'image/png' });
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `AZÔTCHÉ - ${tag}`,
+          text: 'Téléchargez AZÔTCHÉ et trouvez les meilleurs artisans du Bénin !',
+        });
+      } else {
+        // Fallback: partager via WhatsApp
+        const text = encodeURIComponent(`AZÔTCHÉ - ${tag}\nTéléchargez l'app: https://azotche.vercel.app/`);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+      }
+    } catch (error) {
+      console.error('Erreur lors du partage:', error);
+      // Fallback simple
+      const text = encodeURIComponent(`AZÔTCHÉ - ${tag}\nTéléchargez l'app: https://azotche.vercel.app/`);
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+  };
+
   return (
     <div className="promo-page">
       <div className="container">
@@ -150,7 +209,27 @@ export default function PromoPage() {
 
         <div className="promo-grid">
           {promoCards.map((card) => (
-            <PromoCard key={card.id} data={card} />
+            card.image ? (
+              <div key={card.id} className="promo-static-wrapper">
+                <img src={card.image} alt={card.tag} className="promo-static-image" />
+                <div className="promo-actions">
+                  <button
+                    className="promo-action-btn promo-download-btn"
+                    onClick={() => downloadImage(card.image, `azotche-${card.tag.toLowerCase()}.png`)}
+                  >
+                    <FiDownload /> Télécharger
+                  </button>
+                  <button
+                    className="promo-action-btn promo-share-btn"
+                    onClick={() => shareImage(card.image, card.tag)}
+                  >
+                    <FiShare2 /> Partager
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <PromoCard key={card.id} data={card} />
+            )
           ))}
         </div>
       </div>

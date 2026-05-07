@@ -521,6 +521,31 @@ button { cursor: pointer; font-family: var(--font); border: none; outline: none;
   width: 100%;
 }
 
+/* Wrapper pour images statiques */
+.promo-static-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Image statique */
+.promo-static-image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.promo-static-image:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
 /* ═══ Conteneur qui scale le card ═══ */
 .promo-card-container {
   width: 100%;

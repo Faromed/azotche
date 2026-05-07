@@ -83,7 +83,11 @@ export default function PromoCard({ data }) {
 
         {/* Centre : Contenu */}
         <div className="promo-card-content">
-          <div className="promo-emoji">{data.emoji}</div>
+          {data.image ? (
+            <img src={data.image} alt={data.tag} className="promo-image" />
+          ) : (
+            <div className="promo-emoji">{data.emoji}</div>
+          )}
           <div className="promo-headline">{data.headline}</div>
           <div className="promo-divider" />
           <div className="promo-subline">{data.subline}</div>
