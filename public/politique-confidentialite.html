@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Politique de confidentialité de l'application AZÔTCHÉ — Plateforme artisans du Bénin, développée par PROTECH SOLUTION." />
+  <meta name="robots" content="index, follow" />
+  <title>Politique de Confidentialité — AZÔTCHÉ Bénin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --orange: #FF6B35;
+      --orange-light: #FFF0E8;
+      --orange-mid: #FFD4BC;
+      --vert: #1A3A2A;
+      --or: #D4A017;
+      --noir: #1A1A1A;
+      --gris: #555555;
+      --lgris: #888888;
+      --bg: #FAFAF8;
+      --white: #FFFFFF;
+      --border: #E8E0D8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--noir);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--vert);
+      padding: 0;
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 24px 0;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .header-logo {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .header-text h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--or);
+      letter-spacing: 1px;
+    }
+    .header-text p {
+      font-size: 12px;
+      color: rgba(204,204,170,0.85);
+      margin-top: 2px;
+    }
+    .header-stripe {
+      height: 5px;
+      background: var(--orange);
+      margin-top: 20px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--orange-light) 0%, #fff5ef 100%);
+      border-bottom: 1px solid var(--orange-mid);
+      padding: 40px 24px 36px;
+      text-align: center;
+    }
+    .hero h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--vert);
+      margin-bottom: 10px;
+    }
+    .hero h2 span {
+      color: var(--orange);
+    }
+    .hero p {
+      font-size: 13px;
+      color: var(--lgris);
+    }
+    .hero .version-badge {
+      display: inline-block;
+      margin-top: 14px;
+      background: var(--vert);
+      color: var(--or);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 16px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    /* ── TABLE DES MATIÈRES ── */
+    .toc {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--orange);
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin-bottom: 48px;
+    }
+    .toc h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    .toc ol {
+      padding-left: 20px;
+    }
+    .toc li {
+      margin-bottom: 7px;
+    }
+    .toc a {
+      color: var(--vert);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .toc a:hover { color: var(--orange); }
+
+    /* ── ARTICLE ── */
+    .article {
+      margin-bottom: 44px;
+    }
+    .article-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--orange-light);
+      border-left: 5px solid var(--orange);
+      border-radius: 0 8px 8px 0;
+      padding: 12px 20px;
+      margin-bottom: 20px;
+    }
+    .article-num {
+      background: var(--orange);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .article-title h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--vert);
+    }
+
+    /* ── SOUS-SECTION ── */
+    .sub-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--vert);
+      margin: 22px 0 10px;
+      padding-bottom: 5px;
+      border-bottom: 1px dashed var(--orange-mid);
+    }
+
+    /* ── TEXTE ── */
+    p.body {
+      color: var(--gris);
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    /* ── BULLETS ── */
+    .bullet-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 16px;
+    }
+    .bullet-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--gris);
+      margin-bottom: 9px;
+      padding-left: 4px;
+    }
+    .bullet-list li::before {
+      content: '▸';
+      color: var(--orange);
+      font-size: 12px;
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+    .bullet-list.sub li::before {
+      content: '–';
+      color: var(--lgris);
+    }
+    .bullet-list li strong {
+      color: var(--vert);
+      font-weight: 600;
+    }
+
+    /* ── INFO ROW ── */
+    .info-row {
+      display: flex;
+      gap: 10px;
+      font-size: 14px;
+      margin-bottom: 8px;
+      align-items: baseline;
+    }
+    .info-label {
+      font-weight: 600;
+      color: var(--vert);
+      white-space: nowrap;
+      min-width: 130px;
+    }
+    .info-value { color: var(--gris); }
+
+    /* ── ENCART ── */
+    .callout {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--vert);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 16px 0;
+      font-size: 13.5px;
+      color: var(--gris);
+    }
+    .callout strong { color: var(--vert); }
+
+    .callout.orange {
+      border-left-color: var(--orange);
+      background: var(--orange-light);
+    }
+    .callout.orange strong { color: var(--orange); }
+
+    /* ── TABLEAU ── */
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    thead th {
+      background: var(--vert);
+      color: var(--or);
+      font-weight: 600;
+      padding: 12px 16px;
+      text-align: left;
+    }
+    tbody tr:nth-child(even) td { background: #F5F3EE; }
+    tbody tr:nth-child(odd) td { background: var(--white); }
+    td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--gris);
+      vertical-align: top;
+    }
+    td:first-child { font-weight: 600; color: var(--noir); }
+
+    /* ── SOUS-TRAITANT CARD ── */
+    .partner-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+    }
+    .partner-card h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--vert);
+      margin-bottom: 6px;
+    }
+    .partner-card p {
+      font-size: 13px;
+      color: var(--gris);
+    }
+    .partner-card .tag {
+      display: inline-block;
+      background: var(--orange-light);
+      color: var(--orange);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+
+    /* ── DROITS GRID ── */
+    .rights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin: 16px 0;
+    }
+    .right-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--orange);
+      border-radius: 0 0 8px 8px;
+      padding: 16px;
+    }
+    .right-card h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--vert);
+      margin-bottom: 6px;
+    }
+    .right-card p { font-size: 12.5px; color: var(--gris); }
+
+    /* ── CONTACT BOX ── */
+    .contact-box {
+      background: var(--vert);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin: 20px 0;
+      color: white;
+    }
+    .contact-box h4 {
+      color: var(--or);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .contact-box p { font-size: 13.5px; color: rgba(255,255,255,0.85); margin-bottom: 6px; }
+    .contact-box a { color: var(--or); text-decoration: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--vert);
+      padding: 28px 24px;
+      text-align: center;
+      color: rgba(204,204,170,0.8);
+      font-size: 12px;
+    }
+    footer strong { color: var(--or); }
+    footer a { color: var(--or); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .hero h2 { font-size: 20px; }
+      .article-title h2 { font-size: 13.5px; }
+      .info-row { flex-direction: column; gap: 2px; }
+      .info-label { min-width: unset; }
+      .rights-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-inner">
+    <img src="/logo.png" alt="Logo AZÔTCHÉ" class="header-logo" onerror="this.style.display='none'" />
+    <div class="header-text">
+      <h1>AZÔTCHÉ</h1>
+      <p>Application mobile artisans du Bénin &nbsp;·&nbsp; PROTECH SOLUTION</p>
+    </div>
+  </div>
+  <div class="header-stripe"></div>
+</header>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <h2>Politique de <span>Confidentialité</span></h2>
+  <p>Comment nous collectons, utilisons et protégeons vos données personnelles</p>
+  <div class="version-badge">Version 3.0 &nbsp;·&nbsp; En vigueur depuis le 02 juin 2026</div>
+</div>
+
+<!-- ── MAIN ── -->
+<main>
+
+  <!-- TABLE DES MATIÈRES -->
+  <div class="toc">
+    <h3>📋 Sommaire</h3>
+    <ol>
+      <li><a href="#art1">Identité du responsable de traitement</a></li>
+      <li><a href="#art2">Base légale et consentement</a></li>
+      <li><a href="#art3">Données collectées</a></li>
+      <li><a href="#art4">Finalités du traitement</a></li>
+      <li><a href="#art5">Localisation GPS — détail et permissions</a></li>
+      <li><a href="#art6">Notifications push</a></li>
+      <li><a href="#art7">Destinataires et sous-traitants</a></li>
+      <li><a href="#art8">Droits des utilisateurs</a></li>
+      <li><a href="#art9">Durées de conservation</a></li>
+      <li><a href="#art10">Suppression de compte et droit à l'oubli</a></li>
+      <li><a href="#art11">Sécurité des données</a></li>
+      <li><a href="#art12">Protection des mineurs</a></li>
+      <li><a href="#art13">Modifications de la politique</a></li>
+    </ol>
+  </div>
+
+  <!-- ARTICLE 1 -->
+  <div class="article" id="art1">
+    <div class="article-title">
+      <div class="article-num">1</div>
+      <h2>Identité du Responsable de Traitement</h2>
+    </div>
+    <div class="info-row"><span class="info-label">Dénomination</span><span class="info-value">PROTECH SOLUTION</span></div>
+    <div class="info-row"><span class="info-label">Statut juridique</span><span class="info-value">Établissement enregistré en République du Bénin</span></div>
+    <div class="info-row"><span class="info-label">Siège social</span><span class="info-value">Cotonou, République du Bénin</span></div>
+    <div class="info-row"><span class="info-label">Email</span><span class="info-value">protechboite@gmail.com</span></div>
+    <div class="info-row"><span class="info-label">WhatsApp</span><span class="info-value">+229 01 64 97 97 90</span></div>
+    <p class="body" style="margin-top:14px;">PROTECH SOLUTION est le responsable du traitement de l'ensemble des données personnelles collectées dans le cadre de l'exploitation de l'application mobile <strong>AZÔTCHÉ</strong>.</p>
+  </div>
+
+  <!-- ARTICLE 2 -->
+  <div class="article" id="art2">
+    <div class="article-title">
+      <div class="article-num">2</div>
+      <h2>Base Légale et Consentement</h2>
+    </div>
+    <p class="body">Le traitement des données personnelles est fondé sur la <strong>Loi n° 2017-20 portant Code du Numérique en République du Bénin</strong> (Livre 5 — Protection des données personnelles) et son décret d'application.</p>
+    <p class="body">Avant la création de tout compte Professionnel, l'utilisateur fournit un <strong>consentement explicite, éclairé et librement donné</strong> en cochant une case dédiée confirmant la lecture de la présente politique. Ce consentement est enregistré avec horodatage.</p>
+    <div class="callout orange">
+      <strong>Retrait du consentement :</strong> vous pouvez retirer votre consentement à tout moment en supprimant votre compte (voir Article 10). Ce retrait n'a pas d'effet rétroactif sur les traitements déjà effectués.
+    </div>
+  </div>
+
+  <!-- ARTICLE 3 -->
+  <div class="article" id="art3">
+    <div class="article-title">
+      <div class="article-num">3</div>
+      <h2>Données Collectées</h2>
+    </div>
+
+    <div class="sub-title">3.1 — Inscription · Compte Professionnel (Artisan)</div>
+    <ul class="bullet-list">
+      <li><strong>Numéro de téléphone</strong> — obligatoire, utilisé pour l'authentification OTP via Firebase Auth</li>
+      <li><strong>Nom complet</strong></li>
+      <li><strong>Métier principal</strong> et métiers secondaires</li>
+      <li><strong>Ville, quartier, adresse</strong> (optionnels)</li>
+      <li><strong>Site web personnel</strong> (optionnel)</li>
+      <li><strong>Photo de profil</strong> (optionnelle — stockée sur Firebase Storage)</li>
+      <li><strong>Diplôme professionnel</strong> : possession oui/non, année d'obtention (optionnel)</li>
+      <li><strong>Code de parrainage</strong> utilisé à l'inscription (optionnel)</li>
+    </ul>
+
+    <div class="sub-title">3.2 — Inscription · Compte Client / Visiteur</div>
+    <ul class="bullet-list">
+      <li><strong>Numéro de téléphone</strong> (obligatoire)</li>
+      <li><strong>Prénom</strong> (optionnel)</li>
+    </ul>
+
+    <div class="sub-title">3.3 — Vérification d'Identité (Badge Certifié)</div>
+    <p class="body">Ces données sont collectées uniquement lorsqu'un artisan soumet une demande de vérification pour obtenir le badge certifié. Elles sont transmises à l'administrateur AZÔTCHÉ pour vérification manuelle.</p>
+    <ul class="bullet-list">
+      <li><strong>Photo CNI recto</strong> — obligatoire</li>
+      <li><strong>Photo CNI verso</strong> — optionnelle</li>
+      <li><strong>Selfie tenant la CNI</strong> (preuve de possession physique)</li>
+      <li><strong>Photo du diplôme professionnel</strong> (si diplômé)</li>
+      <li><strong>Numéro NPI</strong> (Numéro Personnel d'Identification béninois)</li>
+      <li><strong>Date d'expiration</strong> du document d'identité</li>
+    </ul>
+
+    <div class="sub-title">3.4 — Localisation GPS</div>
+    <div class="callout">
+      <strong>Important :</strong> L'application n'accède <u>jamais</u> à votre localisation en arrière-plan. Seule la permission "lors de l'utilisation" (ACCESS_FINE_LOCATION) est requise.
+    </div>
+    <ul class="bullet-list">
+      <li><strong>Professionnels :</strong> la position GPS est capturée uniquement lors d'un appui sur le bouton "Enregistrer ma position" — l'app est ouverte et visible. Stockée sous forme de coordonnées (latitude/longitude) dans Firestore. Modifiable ou supprimable à tout moment.</li>
+      <li><strong>Visiteurs / Clients :</strong> la position est lue en temps réel (avec votre autorisation) uniquement pour calculer les distances entre vous et les artisans. <u>Elle n'est jamais stockée.</u></li>
+    </ul>
+
+    <div class="sub-title">3.5 — Publications et Réalisations</div>
+    <ul class="bullet-list">
+      <li>Photos (JPEG/PNG) et vidéos (MP4) — stockées sur Firebase Storage, <strong>visibles publiquement</strong></li>
+      <li>Titres et descriptions des réalisations</li>
+      <li>Miniatures générées automatiquement pour les vidéos</li>
+    </ul>
+
+    <div class="sub-title">3.6 — Avis et Interactions</div>
+    <ul class="bullet-list">
+      <li>Texte des avis et note (étoiles) laissés sur un profil d'artisan</li>
+      <li>Likes et commentaires sur les publications</li>
+    </ul>
+    <p class="body">⚠️ Les avis sont <strong>définitifs</strong> : ils ne peuvent être ni modifiés ni supprimés par leur auteur, conformément aux CGU.</p>
+
+    <div class="sub-title">3.7 — Paiements et Transactions</div>
+    <ul class="bullet-list">
+      <li>Montant, date et type de transaction (abonnement Pro/Premium, activation de boost)</li>
+      <li>Référence de transaction FedaPay</li>
+      <li>Statut du paiement (réussi / échoué)</li>
+    </ul>
+    <div class="callout orange">
+      <strong>Aucune donnée bancaire</strong> n'est collectée directement par AZÔTCHÉ. Tout passe par l'interface sécurisée de FedaPay.
+    </div>
+
+    <div class="sub-title">3.8 — Système de Parrainage</div>
+    <ul class="bullet-list">
+      <li>Code de parrainage unique généré pour chaque artisan inscrit</li>
+      <li>Identifiant (UID) des filleuls parrainés</li>
+      <li>Nombre de parrainages validés et solde de crédits</li>
+      <li>Historique de conversion des crédits en jours de boost</li>
+    </ul>
+
+    <div class="sub-title">3.9 — Devis et Documents</div>
+    <ul class="bullet-list">
+      <li>Contenu des devis créés (description, montant, informations client, date)</li>
+      <li>Fichiers PDF générés — stockés localement sur l'appareil de l'artisan</li>
+    </ul>
+
+    <div class="sub-title">3.10 — Données Techniques</div>
+    <ul class="bullet-list">
+      <li><strong>Token FCM</strong> (Firebase Cloud Messaging) : identifiant unique de l'appareil pour l'envoi de notifications push. Mis à jour à chaque connexion, supprimé à la déconnexion.</li>
+      <li><strong>Logs d'utilisation</strong> : date/heure des actions critiques (connexion, paiement, vérification) — conservés 12 mois à des fins de sécurité et d'anti-fraude.</li>
+    </ul>
+  </div>
+
+  <!-- ARTICLE 4 -->
+  <div class="article" id="art4">
+    <div class="article-title">
+      <div class="article-num">4</div>
+      <h2>Finalités du Traitement</h2>
+    </div>
+    <ul class="bullet-list">
+      <li>Authentification sécurisée par code OTP (SMS à usage unique)</li>
+      <li>Création et affichage public du profil Professionnel</li>
+      <li>Affichage de la carte interactive des artisans géolocalisés</li>
+      <li>Calcul des distances entre visiteurs et artisans</li>
+      <li>Diffusion des publications, photos et vidéos de réalisations</li>
+      <li>Gestion des avis, notes moyennes et interactions (likes, commentaires)</li>
+      <li>Envoi de notifications push personnalisées et contextuelles</li>
+      <li>Traitement sécurisé des paiements via FedaPay (Mobile Money)</li>
+      <li>Gestion des abonnements Pro et Premium</li>
+      <li>Activation et suivi des boosts de visibilité</li>
+      <li>Vérification manuelle d'identité (attribution du badge certifié)</li>
+      <li>Animation du système de parrainage et de crédits</li>
+      <li>Génération de devis professionnels au format PDF</li>
+      <li>Lutte contre la fraude, les faux profils et les abus</li>
+      <li>Amélioration continue de l'Application par statistiques agrégées et anonymisées</li>
+    </ul>
+  </div>
+
+  <!-- ARTICLE 5 -->
+  <div class="article" id="art5">
+    <div class="article-title">
+      <div class="article-num">5</div>
+      <h2>Localisation GPS — Détail et Permissions</h2>
+    </div>
+
+    <div class="sub-title">5.1 — Permission demandée</div>
+    <p class="body">L'Application demande uniquement la permission <strong>"Accès à la localisation lors de l'utilisation de l'application"</strong> (<code>ACCESS_FINE_LOCATION</code>). Aucune permission de localisation en arrière-plan (<code>ACCESS_BACKGROUND_LOCATION</code>) n'est requise, déclarée ni utilisée.</p>
+
+    <div class="sub-title">5.2 — Quand la localisation est-elle utilisée ?</div>
+    <ul class="bullet-list">
+      <li><strong>Capture ponctuelle (Professionnel) :</strong> uniquement lors d'un appui sur le bouton "Enregistrer ma position" — l'application est au premier plan et visible par l'utilisateur.</li>
+      <li><strong>Carte interactive (Visiteur) :</strong> lecture en temps réel pour afficher les distances entre le visiteur et les artisans. Non stockée.</li>
+      <li><strong>Aucune collecte automatique, silencieuse ou en arrière-plan</strong> n'est effectuée.</li>
+    </ul>
+
+    <div class="sub-title">5.3 — Comment révoquer la permission ?</div>
+    <div class="callout">
+      Paramètres Android → Applications → <strong>AZÔTCHÉ</strong> → Autorisations → Localisation → <strong>Refuser</strong>.
+    </div>
+  </div>
+
+  <!-- ARTICLE 6 -->
+  <div class="article" id="art6">
+    <div class="article-title">
+      <div class="article-num">6</div>
+      <h2>Notifications Push</h2>
+    </div>
+    <p class="body">Avec votre autorisation système (Android), l'Application envoie des notifications pour les événements suivants :</p>
+    <ul class="bullet-list">
+      <li>Nouvel avis reçu sur votre profil (lien direct vers l'avis concerné)</li>
+      <li>Nouveau like ou commentaire sur une réalisation</li>
+      <li>Boost ou abonnement Pro/Premium arrivant à expiration</li>
+      <li>Nouveau parrainage validé</li>
+      <li>Décision de vérification d'identité (acceptée ou rejetée avec motif)</li>
+      <li>Alertes administratives ou annonces importantes</li>
+    </ul>
+    <p class="body">Le token FCM utilisé est strictement lié à votre appareil et n'est partagé qu'avec Firebase Cloud Messaging (Google LLC).</p>
+    <div class="callout">
+      <strong>Désactivation :</strong> Paramètres → Notifications → AZÔTCHÉ → Désactiver.
+    </div>
+  </div>
+
+  <!-- ARTICLE 7 -->
+  <div class="article" id="art7">
+    <div class="article-title">
+      <div class="article-num">7</div>
+      <h2>Destinataires et Sous-Traitants</h2>
+    </div>
+    <div class="callout orange">
+      <strong>AZÔTCHÉ ne vend, ne loue et ne cède aucune donnée personnelle</strong> à des tiers à des fins commerciales ou publicitaires.
+    </div>
+
+    <div class="partner-card">
+      <div class="tag">Sous-traitant principal</div>
+      <h4>Firebase / Google LLC — États-Unis</h4>
+      <ul class="bullet-list sub" style="margin-top:8px;">
+        <li>Cloud Firestore : base de données des profils, publications, avis, transactions, parrainage</li>
+        <li>Firebase Authentication : authentification OTP par SMS</li>
+        <li>Firebase Storage : photos, vidéos, documents CNI/diplômes</li>
+        <li>Firebase Cloud Messaging (FCM) : envoi des notifications push</li>
+      </ul>
+      <p style="margin-top:8px; font-size:13px; color:var(--lgris);">Transfert vers les États-Unis encadré par les Clauses Contractuelles Types (CCT). — <a href="https://policies.google.com/privacy" target="_blank" style="color:var(--orange);">Politique Google</a></p>
+    </div>
+
+    <div class="partner-card">
+      <div class="tag">Paiements</div>
+      <h4>FedaPay S.A. — Bénin</h4>
+      <p>Traitement sécurisé des paiements Mobile Money (MTN MoMo, Moov Money, Celtis Pay). Les données de paiement sont chiffrées et gérées exclusivement par FedaPay.</p>
+    </div>
+
+    <div class="partner-card">
+      <div class="tag">Cartographie</div>
+      <h4>OpenStreetMap Foundation — Royaume-Uni</h4>
+      <p>Chargement des tuiles de carte. Seules des adresses IP techniques sont transmises — aucune donnée personnelle.</p>
+    </div>
+
+    <div class="partner-card">
+      <div class="tag">Autorité de contrôle</div>
+      <h4>APDP Bénin</h4>
+      <p>Les données peuvent être communiquées sur réquisition légale de l'Autorité de Protection des Données Personnelles du Bénin. — <a href="https://service.apdp.bj" target="_blank" style="color:var(--orange);">service.apdp.bj</a></p>
+    </div>
+  </div>
+
+  <!-- ARTICLE 8 -->
+  <div class="article" id="art8">
+    <div class="article-title">
+      <div class="article-num">8</div>
+      <h2>Droits des Utilisateurs (Loi n° 2017-20)</h2>
+    </div>
+    <p class="body">Conformément au Code du Numérique de la République du Bénin, vous disposez des droits suivants :</p>
+    <div class="rights-grid">
+      <div class="right-card">
+        <h4>📂 Droit d'accès</h4>
+        <p>Obtenir la liste complète des données vous concernant traitées par AZÔTCHÉ.</p>
+      </div>
+      <div class="right-card">
+        <h4>✏️ Droit de rectification</h4>
+        <p>Faire corriger toute donnée inexacte ou incomplète.</p>
+      </div>
+      <div class="right-card">
+        <h4>🗑️ Droit à l'effacement</h4>
+        <p>Demander la suppression de vos données personnelles (voir Article 10).</p>
+      </div>
+      <div class="right-card">
+        <h4>🚫 Droit d'opposition</h4>
+        <p>Vous opposer à certains traitements fondés sur un intérêt légitime.</p>
+      </div>
+      <div class="right-card">
+        <h4>📦 Droit à la portabilité</h4>
+        <p>Recevoir vos données dans un format structuré et lisible par machine.</p>
+      </div>
+      <div class="right-card">
+        <h4>↩️ Retrait du consentement</h4>
+        <p>À tout moment, sans effet rétroactif sur les traitements passés.</p>
+      </div>
+    </div>
+
+    <div class="contact-box">
+      <h4>📬 Exercer vos droits</h4>
+      <p>Email : <a href="mailto:protechboite@gmail.com">protechboite@gmail.com</a></p>
+      <p>WhatsApp : <a href="https://wa.me/22901649797" target="_blank">+229 01 64 97 97 90</a></p>
+      <p style="margin-top:10px; font-size:12px; opacity:0.8;">Délai de réponse maximum : <strong style="color:var(--or);">30 jours</strong>.</p>
+    </div>
+    <p class="body" style="font-size:13px; color:var(--lgris);">Autorité de contrôle nationale : <strong>APDP</strong> — Autorité de Protection des Données Personnelles du Bénin — <a href="https://service.apdp.bj" target="_blank" style="color:var(--orange);">service.apdp.bj</a></p>
+  </div>
+
+  <!-- ARTICLE 9 -->
+  <div class="article" id="art9">
+    <div class="article-title">
+      <div class="article-num">9</div>
+      <h2>Durées de Conservation</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Catégorie de donnée</th><th>Durée de conservation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Données de profil actif</td><td>Durée d'activité du compte</td></tr>
+          <tr><td>Photos et vidéos de publications</td><td>Jusqu'à suppression par l'artisan</td></tr>
+          <tr><td>Position GPS stockée</td><td>Jusqu'à mise à jour ou suppression par l'artisan</td></tr>
+          <tr><td>Documents de vérification (CNI, diplôme)</td><td>1 an après vérification</td></tr>
+          <tr><td>Avis publiés</td><td>Durée d'activité (anonymisés si compte supprimé)</td></tr>
+          <tr><td>Données de transaction / paiement</td><td>5 ans (obligation légale comptable)</td></tr>
+          <tr><td>Logs de sécurité et anti-fraude</td><td>12 mois glissants</td></tr>
+          <tr><td>Token FCM</td><td>Supprimé à chaque déconnexion</td></tr>
+          <tr><td>Données après suppression de compte</td><td>Effacement sous 30 jours (sauf obligations légales)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ARTICLE 10 -->
+  <div class="article" id="art10">
+    <div class="article-title">
+      <div class="article-num">10</div>
+      <h2>Suppression de Compte et Droit à l'Oubli</h2>
+    </div>
+
+    <div class="sub-title">10.1 — Procédure</div>
+    <div class="callout">
+      Application → <strong>Paramètres</strong> → Supprimer mon compte → Confirmer.
+    </div>
+
+    <div class="sub-title">10.2 — Délai de rétractation (30 jours)</div>
+    <p class="body">Un délai de 30 jours est accordé avant toute suppression définitive, conformément au principe de protection des données personnelles (APDP). Durant cette période, le compte est <strong>gelé</strong> (invisible du public). Annulation possible via Paramètres → Annuler la suppression.</p>
+
+    <div class="sub-title">10.3 — Suppression définitive après 30 jours</div>
+    <p class="body">Les éléments suivants sont effacés de façon irréversible :</p>
+    <ul class="bullet-list">
+      <li>Profil complet (nom, photo, métiers, ville, coordonnées GPS)</li>
+      <li>Toutes les publications (photos, vidéos)</li>
+      <li>Documents de vérification (CNI, diplôme, selfie)</li>
+      <li>Historique de parrainage, crédits non utilisés (annulés)</li>
+      <li>Token FCM et compte Firebase Authentication</li>
+    </ul>
+    <p class="body">⚠️ Le crédit de parrainage accordé au parrain est retiré s'il n'a pas encore été converti en boost au moment de la suppression.</p>
+
+    <div class="sub-title">10.4 — Données maintenues après suppression</div>
+    <ul class="bullet-list">
+      <li>Transactions financières : conservées 5 ans (obligation légale comptable)</li>
+      <li>Avis publiés : anonymisés (nom de l'auteur retiré, contenu conservé)</li>
+    </ul>
+  </div>
+
+  <!-- ARTICLE 11 -->
+  <div class="article" id="art11">
+    <div class="article-title">
+      <div class="article-num">11</div>
+      <h2>Sécurité des Données</h2>
+    </div>
+    <p class="body">Les données sont hébergées sur l'infrastructure Firebase (Google Cloud) avec les mesures de sécurité suivantes :</p>
+    <ul class="bullet-list">
+      <li><strong>Chiffrement des communications :</strong> HTTPS / TLS 1.3</li>
+      <li><strong>Chiffrement au repos :</strong> AES-256 (géré par Google Cloud)</li>
+      <li><strong>Règles Firestore :</strong> chaque utilisateur n'accède qu'à ses propres données</li>
+      <li><strong>Authentification forte :</strong> OTP par SMS (code 6 chiffres, usage unique, valable 5 minutes)</li>
+      <li><strong>Token FCM :</strong> invalidé à chaque déconnexion</li>
+      <li><strong>Accès administrateur :</strong> restreint, authentifié et audité</li>
+      <li><strong>Aucun mot de passe stocké</strong> — authentification sans mot de passe (passwordless)</li>
+    </ul>
+  </div>
+
+  <!-- ARTICLE 12 -->
+  <div class="article" id="art12">
+    <div class="article-title">
+      <div class="article-num">12</div>
+      <h2>Protection des Mineurs</h2>
+    </div>
+    <p class="body">L'Application AZÔTCHÉ est réservée aux personnes âgées de <strong>18 ans et plus</strong>. Aucune collecte intentionnelle de données concernant des mineurs n'est effectuée.</p>
+    <p class="body">Si vous constatez qu'un mineur a créé un compte, contactez-nous immédiatement à <a href="mailto:protechboite@gmail.com" style="color:var(--orange);">protechboite@gmail.com</a> afin que nous procédions à la suppression du compte dans les meilleurs délais.</p>
+  </div>
+
+  <!-- ARTICLE 13 -->
+  <div class="article" id="art13">
+    <div class="article-title">
+      <div class="article-num">13</div>
+      <h2>Modifications de la Politique</h2>
+    </div>
+    <p class="body">La présente politique peut être mise à jour pour refléter les évolutions de l'Application ou du cadre légal applicable. En cas de modification substantielle affectant les droits des utilisateurs, une notification sera envoyée via l'Application.</p>
+    <p class="body">La version en vigueur est toujours consultable dans l'Application : <strong>Paramètres → Informations légales → Confidentialité</strong>.</p>
+    <div class="info-row" style="margin-top:16px;"><span class="info-label">Version actuelle</span><span class="info-value">3.0</span></div>
+    <div class="info-row"><span class="info-label">Date d'entrée en vigueur</span><span class="info-value">02 juin 2026</span></div>
+    <div class="info-row"><span class="info-label">Remplace la version</span><span class="info-value">2.0 du 27/05/2026</span></div>
+  </div>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p><strong>PROTECH SOLUTION</strong> &nbsp;·&nbsp; Application <strong>AZÔTCHÉ</strong> &nbsp;·&nbsp; Cotonou, Bénin</p>
+  <p style="margin-top:6px;"><a href="mailto:protechboite@gmail.com">protechboite@gmail.com</a> &nbsp;·&nbsp; +229 01 64 97 97 90</p>
+  <p style="margin-top:10px; font-size:11px; opacity:0.6;">© 2026 PROTECH SOLUTION — Tous droits réservés</p>
+</footer>
+
+</body>
+</html>

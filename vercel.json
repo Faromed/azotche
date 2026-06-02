@@ -1,5 +1,8 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+  "routes": [
+    { "src": "/politique-confidentialite", "dest": "/politique-confidentialite.html" },
+    { "src": "/politique-confidentialite.html", "dest": "/politique-confidentialite.html" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/" }
   ]
 }
