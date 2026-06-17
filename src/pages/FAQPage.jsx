@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiChevronDown, FiArrowRight } from 'react-icons/fi';
+import {
+  FiChevronDown, FiArrowRight, FiSearch, FiUser,
+  FiDollarSign, FiShield,
+} from 'react-icons/fi';
 
 const allFaqs = [
   {
-    category: '🔍 Recherche & Consultation',
+    category: 'Recherche & Consultation',
+    icon: FiSearch,
     items: [
       { q: "Faut-il créer un compte pour chercher un artisan ?", a: "Non ! La recherche et la consultation sont 100% gratuites et sans inscription. Ouvrez l'app et cherchez directement." },
       { q: "Comment trouver un artisan près de chez moi ?", a: "Activez la géolocalisation 'Autour de moi' ou saisissez manuellement votre ville/quartier. Les résultats s'affichent par proximité." },
@@ -14,7 +18,8 @@ const allFaqs = [
     ],
   },
   {
-    category: '👷 Inscription Artisan',
+    category: 'Inscription Artisan',
+    icon: FiUser,
     items: [
       { q: "Comment m'inscrire en tant qu'artisan ?", a: "Téléchargez l'app, cliquez 'S'inscrire', validez votre numéro par SMS, puis remplissez votre profil (nom, métier, localisation, photos)." },
       { q: "L'inscription est-elle gratuite ?", a: "L'inscription de base est gratuite. Des options payantes (Boost, Premium) sont disponibles pour plus de visibilité." },
@@ -24,7 +29,8 @@ const allFaqs = [
     ],
   },
   {
-    category: '💰 Paiements',
+    category: 'Paiements',
+    icon: FiDollarSign,
     items: [
       { q: "Quels moyens de paiement sont acceptés ?", a: "Nous acceptons les paiements via Mobile Money (MTN et Moov) grâce à notre partenaire FedaPay." },
       { q: "Les paiements sont-ils sécurisés ?", a: "Oui, tous les paiements passent par FedaPay, une plateforme de paiement certifiée et sécurisée." },
@@ -32,7 +38,8 @@ const allFaqs = [
     ],
   },
   {
-    category: '🔒 Sécurité',
+    category: 'Sécurité',
+    icon: FiShield,
     items: [
       { q: "Mes données sont-elles en sécurité ?", a: "Oui. Nous utilisons Firebase (Google Cloud) avec chiffrement HTTPS, authentification SMS et règles de sécurité strictes." },
       { q: "Comment me protéger des arnaques ?", a: "Ne payez JAMAIS d'avance par Mobile Money sans avoir rencontré l'artisan. AZÔTCHÉ ne garantit pas les transactions hors plateforme." },
@@ -60,7 +67,8 @@ export default function FAQPage() {
         <div className="faq-list">
           {allFaqs.map((cat, catIdx) => (
             <div key={catIdx} style={{ marginBottom: 40 }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 600, color: 'var(--orange)', marginBottom: 16 }}>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 600, color: 'var(--orange)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                {cat.icon && <cat.icon size={18} />}
                 {cat.category}
               </h2>
               {cat.items.map((faq, itemIdx) => {
@@ -82,7 +90,7 @@ export default function FAQPage() {
           ))}
         </div>
         <div style={{ textAlign: 'center', marginTop: 48 }}>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: 16 }}>Vous n'avez pas trouvé votre réponse ?</p>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 16 }}>Vous n’avez pas trouvé votre réponse ?</p>
           <Link to="/support" className="btn btn-primary">
             Contacter le support <FiArrowRight />
           </Link>

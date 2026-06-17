@@ -1,3 +1,4 @@
+import { FiTarget } from 'react-icons/fi';
 import useScrollReveal from '../hooks/useScrollReveal';
 
 const steps = [
@@ -12,7 +13,7 @@ export default function HowItWorks() {
   return (
     <section className="how-it-works section" id="comment-ca-marche" ref={ref}>
       <div className="container">
-        <div className="section-tag reveal">🎯 Comment ça marche</div>
+        <div className="section-tag reveal"><FiTarget size={15} /> Comment ça marche</div>
         <h2 className="section-title reveal">
           En <span className="accent">3 étapes</span> simples
         </h2>

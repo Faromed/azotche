@@ -1,8 +1,31 @@
 {
-  "routes": [
-    { "src": "/politique-confidentialite", "dest": "/politique-confidentialite.html" },
-    { "src": "/politique-confidentialite.html", "dest": "/politique-confidentialite.html" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/" }
+  "rewrites": [
+    {
+      "source": "/politique-confidentialite",
+      "destination": "/politique-confidentialite.html"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
+      ]
+    }
   ]
 }

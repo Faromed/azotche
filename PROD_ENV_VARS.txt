@@ -1,0 +1,48 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+#  VARIABLES D'ENVIRONNEMENT VERCEL — À ajouter dans :
+#  Vercel Dashboard → votre projet → Settings → Environment Variables
+#
+#  Pour chaque variable :
+#    1. Cliquez "Add New"
+#    2. Collez le nom (KEY) et la valeur (VALUE)
+#    3. Cochez "Production" (+ "Preview" si vous voulez)
+#    4. Cliquez "Save"
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+# ── FedaPay (OBLIGATOIRE) ────────────────────────────────────────────────────
+
+KEY:   FEDAPAY_SECRET_KEY
+VALUE: sk_live_REMPLACER_PAR_VOTRE_CLE_FEDAPAY
+
+# Obtenir la clé : https://dashboard.fedapay.com → API Keys → Live → Secret Key
+
+
+# ── Firebase Admin SDK (OBLIGATOIRE pour la vérification des paiements) ───────
+# Générer le fichier JSON : Firebase Console → Project Settings →
+#   Service Accounts → "Generate new private key" → Télécharger le .json
+# Les 3 valeurs ci-dessous sont dans ce fichier JSON.
+
+KEY:   FIREBASE_PROJECT_ID
+VALUE: artisan-connect-benin
+
+KEY:   FIREBASE_CLIENT_EMAIL
+VALUE: REMPLACER_PAR_client_email_du_service_account
+# Exemple : firebase-adminsdk-xxxxx@artisan-connect-benin.iam.gserviceaccount.com
+
+KEY:   FIREBASE_PRIVATE_KEY
+VALUE: REMPLACER_PAR_private_key_du_service_account
+# ⚠️  IMPORTANT : Copiez la clé privée EXACTEMENT telle qu'elle apparaît dans
+#     le fichier JSON, y compris "-----BEGIN PRIVATE KEY-----" et les \n
+#     Exemple : "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkq...\n-----END PRIVATE KEY-----\n"
+
+
+# ── Optionnel ────────────────────────────────────────────────────────────────
+
+# Restreindre CORS à votre domaine (recommandé en production)
+KEY:   ALLOWED_ORIGIN
+VALUE: https://azotche.bj
+
+# Activer le sandbox FedaPay (tests uniquement, ne PAS mettre en production)
+# KEY:   FEDAPAY_SANDBOX
+# VALUE: true
