@@ -4,13 +4,14 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 // Même projet Firebase que l'app mobile et l'admin web
+// Valeurs injectées via variables d'environnement (voir .env.example)
 const firebaseConfig = {
-  apiKey: "AIzaSyD4hmGzST17RQzALGrgMbgJYAAkT-AuHgg",
-  authDomain: "artisan-connect-benin.firebaseapp.com",
-  projectId: "artisan-connect-benin",
-  storageBucket: "artisan-connect-benin.firebasestorage.app",
-  messagingSenderId: "892467393728",
-  appId: "1:892467393728:web:f32dfd776b98ca5c00a925",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
