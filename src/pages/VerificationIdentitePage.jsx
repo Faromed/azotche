@@ -5,7 +5,7 @@ import {
   FiArrowLeft, FiUser, FiHome, FiPhone, FiBriefcase, FiCalendar,
   FiAlertTriangle, FiInfo, FiCreditCard,
 } from 'react-icons/fi';
-import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { useAuth } from '../context/AuthContext';
@@ -31,6 +31,9 @@ export default function VerificationIdentitePage() {
 
   // ── Profil artisan ──
   const [artisan, setArtisan] = useState(null);
+  // Nombre de tentatives — vit dans users/{uid}/private/identite (jamais sur
+  // le document public users/{uid}), donc chargé séparément ci-dessous.
+  const [verifAttempts, setVerifAttempts] = useState(0);
 
   // ── Flux multi-étape ──
   // step -1 = modal conditions | 0..2 = formulaire
@@ -57,28 +60,44 @@ export default function VerificationIdentitePage() {
   const fileRef = useRef(null);
   const [pendingSlot, setPendingSlot] = useState(null); // 'recto'|'verso'|'selfie'|'diplome'
 
-  // ── Charger config + profil ──
+  // ── Charger config + profil + données privées de vérification ──
+  // SÉCURITÉ : cniUrl, npi, adresse complète, contact d'urgence, etc. ne vivent
+  // JAMAIS sur le document public users/{uid} — elles sont lues depuis la
+  // sous-collection privée users/{uid}/private/identite (lecture restreinte
+  // au propriétaire + admin), utile pour préremplir le formulaire en cas de
+  // correction après un rejet.
   useEffect(() => {
     if (!user) { navigate('/connexion', { replace: true }); return; }
     Promise.all([
       getDoc(doc(db, 'parametres', 'config')),
       getDoc(doc(db, 'users', user.uid)),
-    ]).then(([configSnap, userSnap]) => {
+      getDoc(doc(db, 'users', user.uid, 'private', 'identite')),
+    ]).then(([configSnap, userSnap, identiteSnap]) => {
       if (configSnap.exists()) setMontantVerif(configSnap.data().montantVerification ?? 2000);
-      if (userSnap.exists()) {
-        const d = userSnap.data();
-        setArtisan(d);
-        setMetierDeclare(d.metierPrincipal || '');
-        setAdresse(d.adresseComplete || d.adresse || '');
-        setContactSecours(d.contactSecours || '');
+
+      const userData = userSnap.exists() ? userSnap.data() : {};
+      const identite  = identiteSnap.exists() ? identiteSnap.data() : {};
+
+      if (userSnap.exists()) setArtisan(userData);
+      setVerifAttempts(identite.verificationAttempts ?? 0);
+
+      setMetierDeclare(identite.metierDeclare || userData.metierPrincipal || '');
+      setAdresse(identite.adresseComplete || userData.adresse || '');
+      setContactSecours(identite.contactSecours || '');
+      setNpi(identite.npi || '');
+      if (identite.dateExpirationCarte) {
+        const de = identite.dateExpirationCarte.toDate
+          ? identite.dateExpirationCarte.toDate()
+          : new Date(identite.dateExpirationCarte);
+        if (!isNaN(de.getTime())) setDateExpiry(de.toISOString().split('T')[0]);
       }
     }).catch(console.error)
       .finally(() => setLoadingConfig(false));
   }, [user, navigate]);
 
   const isDiplome = artisan?.isDiplome ?? false;
-  const isCorrection = artisan?.verificationEnCours === false && (artisan?.verificationAttempts ?? 0) > 0;
-  const attempts = artisan?.verificationAttempts ?? 0;
+  const isCorrection = artisan?.verificationEnCours === false && verifAttempts > 0;
+  const attempts = verifAttempts;
   const isPaid = montantVerif > 0 && !isCorrection;
 
   // ── Sélection fichier image ──
@@ -150,8 +169,12 @@ export default function VerificationIdentitePage() {
           uploadDoc(selfie,     'selfie'),
           uploadDoc(diplome,    'diplome'),
         ]);
-        await updateDoc(doc(db, 'users', user.uid), {
-          verificationEnCours:    true,
+
+        // Données sensibles (pièce d'identité, NPI, adresse, contact d'urgence…)
+        // → sous-collection privée users/{uid}/private/identite, JAMAIS sur le
+        // document public users/{uid} (règle Firestore : lecture restreinte au
+        // propriétaire + admin — voir firestore.rules).
+        const identitePayload = {
           cniUrl:                 rectoUrl,
           cniRectoUrl:            rectoUrl,
           ...(versoUrl  && { cniVersoUrl:  versoUrl  }),
@@ -161,12 +184,21 @@ export default function VerificationIdentitePage() {
           contactSecours:         contactSecours.trim(),
           metierDeclare:          metierDeclare.trim(),
           npi:                    npi.trim(),
-          dateExpirationCarte:    dateExpiry,
-          motifRejetVerification: null,
+          dateExpirationCarte:    Timestamp.fromDate(new Date(dateExpiry)),
           dateDemandeVerification:serverTimestamp(),
           verificationAttempts:   attempts + 1,
-          verificationExpiry:     null,
+        };
+        await setDoc(
+          doc(db, 'users', user.uid, 'private', 'identite'),
+          identitePayload,
+          { merge: true }
+        );
+
+        // Document public : uniquement le drapeau non sensible "en cours".
+        await updateDoc(doc(db, 'users', user.uid), {
+          verificationEnCours: true,
         });
+
         setDone(true);
       } catch (err) {
         console.error('verif submit:', err);

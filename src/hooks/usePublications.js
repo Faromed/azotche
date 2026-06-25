@@ -119,20 +119,32 @@ export function usePublicationCrud(proUid) {
   const [progress, setProgress] = useState(0);
   const [error, setError]       = useState(null);
 
-  // Créer une nouvelle publication
+  // Créer une nouvelle publication — schéma strictement aligné sur le mobile
+  // (dashboard_provider.dart → addPublication) : proUid, imageUrl, imageUrls,
+  // photosCount, legende, datePublication, likes, commentsCount, vues.
+  // proNom/proPhotoUrl sont des champs additifs web (affichage du flux multi-
+  // artisans dans PublicationsPage.jsx) — absents du modèle mobile mais sans
+  // conflit puisque Flutter ignore simplement les champs qu'il ne connaît pas.
   const createPublication = async (data) => {
     setSaving(true);
     setError(null);
     try {
+      const imageUrls = data.imageUrls || [];
       const docRef = await addDoc(collection(db, 'publications'), {
-        ...data,
         proUid,
-        statut: 'actif',
-        nombreVues: 0,
-        nombreContacts: 0,
-        date: serverTimestamp(),          // champ attendu par l'app Flutter (orderBy 'date')
-        dateCreation: serverTimestamp(),  // alias compat web
-        updatedAt: serverTimestamp(),
+        proNom: data.proNom || '',
+        proPhotoUrl: data.proPhotoUrl || '',
+        legende: data.legende || '',
+        imageUrl: imageUrls[0] || '',
+        imageUrls,
+        photosCount: imageUrls.length,
+        datePublication: serverTimestamp(), // champ attendu par l'app Flutter
+        likes: 0,
+        commentsCount: 0,
+        vues: 0,
+        // Pas de champ 'statut' à la création : son absence == publication
+        // active, exactement comme une publication créée depuis le mobile
+        // (voir usePublicationsFeed : !p.statut || p.statut === 'actif').
       });
       return { success: true, id: docRef.id };
     } catch (e) {
@@ -144,15 +156,17 @@ export function usePublicationCrud(proUid) {
     }
   };
 
-  // Modifier une publication
+  // Modifier une publication (légende et/ou photos)
   const updatePublication = async (id, data) => {
     setSaving(true);
     setError(null);
     try {
-      await updateDoc(doc(db, 'publications', id), {
-        ...data,
-        updatedAt: serverTimestamp(),
-      });
+      const patch = { ...data, updatedAt: serverTimestamp() };
+      if (data.imageUrls) {
+        patch.imageUrl = data.imageUrls[0] || '';
+        patch.photosCount = data.imageUrls.length;
+      }
+      await updateDoc(doc(db, 'publications', id), patch);
       return { success: true };
     } catch (e) {
       console.error('updatePublication:', e);
@@ -163,9 +177,11 @@ export function usePublicationCrud(proUid) {
     }
   };
 
-  // Activer / désactiver
+  // Activer / désactiver — l'absence de statut == actif (publication créée
+  // depuis le mobile, ou depuis le web sans statut explicite à la création).
   const togglePublication = async (id, currentStatut) => {
-    const newStatut = currentStatut === 'actif' ? 'inactif' : 'actif';
+    const isActive = !currentStatut || currentStatut === 'actif';
+    const newStatut = isActive ? 'inactif' : 'actif';
     return updatePublication(id, { statut: newStatut });
   };
 

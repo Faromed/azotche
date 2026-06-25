@@ -159,10 +159,12 @@ exports.verifyFedaPayTransaction = onCall(
       const status = res.data['v1/transaction']?.status;
       logger.info(`FedaPay transaction ${fedapayTransactionId} status: ${status}`);
 
+      // Valeur exacte de l'enum mobile TransactionStatus (transaction_model.dart) :
+      // enAttente / reussi / echoue.
       if (status !== 'approved') {
         // Marquer la transaction locale comme échouée
         await db.collection('transactions').doc(localTransactionId).update({
-          statut:    'echec',
+          statut:    'echoue',
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
         return { success: false, status };
@@ -170,7 +172,7 @@ exports.verifyFedaPayTransaction = onCall(
 
       // ── Paiement approuvé → appliquer l'effet ───────────────────────────
       await db.collection('transactions').doc(localTransactionId).update({
-        statut:    'succes',
+        statut:    'reussi',
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 

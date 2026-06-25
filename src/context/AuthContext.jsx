@@ -1,11 +1,101 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  doc, getDoc, setDoc, updateDoc, serverTimestamp,
+  collection, query, where, limit, getDocs, addDoc, increment,
+} from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '../firebase';
 import { genReferralCode, genClientReferralCode } from '../config/metiers';
 
 const AuthContext = createContext(null);
+
+/**
+ * Applique un code de parrainage saisi à l'inscription — port fidèle de
+ * firestore_service.dart → applyReferral() (Flutter). Appelé par le FILLEUL
+ * juste après la création de son propre document, exactement comme sur
+ * mobile : c'est pourquoi la règle Firestore isValidReferralCreditUpdate()
+ * autorise un utilisateur connecté à incrémenter referralCount/creditParrainage
+ * sur le document d'un AUTRE utilisateur (le parrain) — c'est le filleul qui
+ * crédite son parrain, jamais l'inverse.
+ *
+ * IMPORTANT : referredBy doit toujours contenir l'UID du parrain (jamais le
+ * code saisi tel quel) — c'est ce que lit ParrainagePage.jsx et UsersPage.js
+ * (admin) pour compter les filleuls.
+ */
+async function applyReferral({ referralCode, newUserId }) {
+  try {
+    const code = (referralCode || '').trim().toUpperCase();
+    if (!code) return;
+
+    // Trouver le parrain par son code
+    const q = query(collection(db, 'users'), where('referralCode', '==', code), limit(1));
+    const snap = await getDocs(q);
+    if (snap.empty) return;
+
+    const parrainDoc = snap.docs[0];
+    const parrain     = parrainDoc.data();
+    const parrainUid  = parrainDoc.id;
+    if (parrainUid === newUserId) return; // pas d'auto-parrainage
+
+    // Config parrainage — config/app (mobile), repli sur parametres/config
+    let creditParReferral = 1, creditPremiumMultiplier = 2, milestoneReferrals = 5,
+        milestoneBoostJours = 7, featureDoubleReferral = true;
+    try {
+      const cfgSnap = await getDoc(doc(db, 'config', 'app'));
+      const c = cfgSnap.data() || {};
+      creditParReferral       = c.creditParReferral ?? 1;
+      creditPremiumMultiplier = c.creditPremiumMultiplier ?? 2;
+      milestoneReferrals      = c.milestoneReferrals ?? milestoneReferrals;
+      milestoneBoostJours     = c.milestoneBoostDays ?? 7;
+      featureDoubleReferral   = c.feature_premium_double_referral ?? true;
+    } catch (_) { /* defaults ci-dessus */ }
+
+    const isParrainPremium = parrain.plan === 'premium';
+    const applyDouble      = isParrainPremium && featureDoubleReferral;
+    const creditAGagner    = applyDouble ? creditParReferral * creditPremiumMultiplier : creditParReferral;
+
+    const newCount    = (parrain.referralCount || 0) + 1;
+    const isMilestone = newCount % milestoneReferrals === 0;
+
+    // 1. Lier le filleul à son parrain (UID, jamais le code saisi)
+    await updateDoc(doc(db, 'users', newUserId), { referredBy: parrainUid });
+
+    // 2. Créditer le parrain : compteur + crédits (+ jours de boost en attente si palier)
+    const parrainUpdate = {
+      referralCount:    increment(1),
+      creditParrainage: increment(creditAGagner),
+    };
+    if (isMilestone) {
+      parrainUpdate.milestoneBoostEnAttente = increment(milestoneBoostJours);
+    }
+    await updateDoc(doc(db, 'users', parrainUid), parrainUpdate);
+
+    // 3. Notifier le parrain — même collection que mobile (users/{uid}/user_notifications)
+    const bonusLabel = applyDouble ? ` (×${creditPremiumMultiplier} Premium !)` : '';
+    await addDoc(collection(db, 'users', parrainUid, 'user_notifications'), {
+      title: 'Nouveau parrainage ! 🎉',
+      body: `Un artisan vient de rejoindre AZÔTCHÉ grâce à vous. Vous gagnez ${creditAGagner} crédit${creditAGagner > 1 ? 's' : ''}${bonusLabel} !`,
+      date: serverTimestamp(),
+      read: false,
+      type: 'referral',
+      credit: creditAGagner,
+    }).catch(() => {});
+
+    if (isMilestone) {
+      await addDoc(collection(db, 'users', parrainUid, 'user_notifications'), {
+        title: `🏆 Palier ${newCount} parrainages atteint !`,
+        body: `Félicitations ! Vous gagnez ${milestoneBoostJours} jours de Boost offerts. Contactez-nous pour l'activer.`,
+        date: serverTimestamp(),
+        read: false,
+        type: 'referral_milestone',
+        boostJours: milestoneBoostJours,
+      }).catch(() => {});
+    }
+  } catch (e) {
+    console.error('Erreur applyReferral:', e);
+  }
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null);
@@ -104,11 +194,6 @@ export function AuthProvider({ children }) {
         categorie:         data.categorie || '',
       };
 
-      // Appliquer le parrainage si code saisi
-      if (data.referredBy && data.referredBy.trim()) {
-        userDoc.referredBy = data.referredBy.trim().toUpperCase();
-      }
-
       // Document pros/{uid}
       const proDoc = {
         description:        data.description || '',
@@ -129,6 +214,13 @@ export function AuthProvider({ children }) {
 
       await setDoc(doc(db, 'users', uid), userDoc);
       await setDoc(doc(db, 'pros',  uid), proDoc);
+
+      // Appliquer le parrainage si un code a été saisi — résout le code vers
+      // l'UID du parrain et le crédite (referredBy n'est JAMAIS le code brut).
+      if (data.referredBy && data.referredBy.trim()) {
+        await applyReferral({ referralCode: data.referredBy, newUserId: uid });
+      }
+
       await loadProfile(uid);
       return { success: true };
     } catch (e) {
@@ -168,11 +260,14 @@ export function AuthProvider({ children }) {
         dateInscription:   now,
       };
 
+      await setDoc(doc(db, 'users', uid), userDoc);
+
+      // Appliquer le parrainage si un code a été saisi — résout le code vers
+      // l'UID du parrain et le crédite (referredBy n'est JAMAIS le code brut).
       if (data.referredBy && data.referredBy.trim()) {
-        userDoc.referredBy = data.referredBy.trim().toUpperCase();
+        await applyReferral({ referralCode: data.referredBy, newUserId: uid });
       }
 
-      await setDoc(doc(db, 'users', uid), userDoc);
       await loadProfile(uid);
       return { success: true };
     } catch (e) {

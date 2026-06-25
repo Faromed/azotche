@@ -125,7 +125,7 @@ export default function ArtisanProfilePage() {
     if (avisNote === 0) { setSubmitError('Veuillez choisir une note.'); return; }
     if (!avisComment.trim()) { setSubmitError('Veuillez ecrire un commentaire.'); return; }
     const result = await submitAvis({
-      artisanUid: uid,
+      proUid: uid,
       clientUid: user.uid,
       clientNom: profile?.nom || user.displayName || 'Client',
       clientPhotoUrl: profile?.photoUrl || user.photoURL || '',
@@ -134,9 +134,9 @@ export default function ArtisanProfilePage() {
     });
     if (result.success) {
       const newAvis = {
-        id: result.id, artisanUid: uid, clientUid: user.uid,
+        id: result.id, proUid: uid, clientUid: user.uid,
         clientNom: profile?.nom || user.displayName || 'Client',
-        note: avisNote, commentaire: avisComment, dateCreation: new Date(),
+        note: avisNote, commentaire: avisComment, date: new Date(), statut: 'approved',
       };
       setMyAvis(newAvis);
       setAvis(prev => [newAvis, ...prev]);

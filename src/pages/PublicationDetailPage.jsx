@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   FiArrowLeft, FiPhone, FiMessageCircle, FiMapPin,
   FiCalendar, FiEye, FiChevronLeft, FiChevronRight, FiX,
@@ -8,7 +8,7 @@ import {
 import { fetchPublicationById } from '../hooks/usePublications';
 import { fetchArtisanByUid } from '../hooks/useArtisans';
 import {
-  doc, updateDoc, increment,
+  doc, getDoc, updateDoc, increment, runTransaction,
   collection, addDoc, getDocs, orderBy, query, serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -27,8 +27,21 @@ function normalizePhotos(pub) {
   return [];
 }
 
+/** Notifier le propriétaire d'une publication (like/commentaire) — même
+ * collection que _createNotification() côté mobile (users/{uid}/user_notifications).
+ * Fire-and-forget : une notification manquée ne doit jamais bloquer l'action. */
+function notifyOwner(ownerUid, { title, body, type, publicationId }) {
+  addDoc(collection(db, 'users', ownerUid, 'user_notifications'), {
+    title, body, type,
+    date: serverTimestamp(),
+    read: false,
+    ...(publicationId ? { publicationId } : {}),
+  }).catch(() => {});
+}
+
 export default function PublicationDetailPage() {
   const { id }    = useParams();
+  const navigate  = useNavigate();
   const { user, profile } = useAuth();
 
   const [pub, setPub]         = useState(null);
@@ -45,7 +58,6 @@ export default function PublicationDetailPage() {
   const [comments, setComments]     = useState([]);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [commentText, setCommentText]   = useState('');
-  const [commentName, setCommentName]   = useState('');
   const [sendingComment, setSendingComment] = useState(false);
   const commentInputRef = useRef(null);
 
@@ -67,21 +79,20 @@ export default function PublicationDetailPage() {
         if (!data) { setError('Publication introuvable.'); return; }
         setPub(data);
         setLikesCount(data.likes ?? data.nombreLikes ?? 0);
-        // Vérifier si déjà liké (localStorage)
-        const likedKey = `liked_pub_${id}`;
-        setLiked(localStorage.getItem(likedKey) === '1');
-        // Incrémenter vues
-        try { await updateDoc(doc(db, 'publications', id), { nombreVues: increment(1) }); } catch (_) {}
+        // Incrémenter vues — champ 'vues' aligné sur le mobile (dashboard_provider.dart).
+        // Autorisé même pour un visiteur anonyme (firestore.rules → isPublicationViewUpdate()).
+        try { await updateDoc(doc(db, 'publications', id), { vues: increment(1) }); } catch (_) {}
         // Charger profil artisan
         if (data.proUid) {
           const a = await fetchArtisanByUid(data.proUid);
           setArtisan(a);
         }
-        // Charger commentaires
+        // Charger commentaires — sous-collection 'comments' (alignée sur
+        // firestore_service.dart → addComment), triée par 'date' croissante.
         try {
           const q = query(
-            collection(db, 'publications', id, 'commentaires'),
-            orderBy('createdAt', 'asc'),
+            collection(db, 'publications', id, 'comments'),
+            orderBy('date', 'asc'),
           );
           const snap = await getDocs(q);
           setComments(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -91,36 +102,112 @@ export default function PublicationDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  // Vérifier si l'utilisateur connecté a déjà liké — lecture directe de la
+  // sous-collection 'likes/{uid}', exactement comme isPostLiked() côté mobile.
+  // (Le localStorage ne suffit pas : il ne reflète pas l'état réel si
+  // l'utilisateur change d'appareil/navigateur, et ne marche pas pour un
+  // visiteur qui n'était pas connecté lors d'un like précédent.)
+  useEffect(() => {
+    if (!user) { setLiked(false); return; }
+    let cancelled = false;
+    getDoc(doc(db, 'publications', id, 'likes', user.uid))
+      .then(snap => { if (!cancelled) setLiked(snap.exists()); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [id, user]);
+
   // ── Handlers like / commentaire ──────────────────────────────────────────────
+  // Like — sous-collection 'likes/{uid}' + transaction, alignés strictement
+  // sur firestore_service.dart → toggleLike (mobile). Nécessite d'être connecté
+  // (la règle Firestore isPublicationEngagementUpdate() exige isSignedIn() ;
+  // un like anonyme par simple increment() échouait donc silencieusement).
   const handleLike = async () => {
-    const likedKey = `liked_pub_${id}`;
-    const nowLiked = !liked;
-    setLiked(nowLiked);
-    setLikesCount(c => c + (nowLiked ? 1 : -1));
-    localStorage.setItem(likedKey, nowLiked ? '1' : '0');
+    if (!user) { navigate('/connexion'); return; }
+    const pubRef  = doc(db, 'publications', id);
+    const likeRef = doc(db, 'publications', id, 'likes', user.uid);
+    const wasLiked = liked;
+    const expected = !wasLiked;
+
+    // Mise à jour optimiste (UX fluide, comme côté mobile)
+    setLiked(expected);
+    setLikesCount(c => c + (expected ? 1 : -1));
+
     try {
-      await updateDoc(doc(db, 'publications', id), { likes: increment(nowLiked ? 1 : -1) });
-    } catch (_) {}
+      const finalState = await runTransaction(db, async (transaction) => {
+        const likeSnap = await transaction.get(likeRef);
+        const pubSnap  = await transaction.get(pubRef);
+        if (!pubSnap.exists()) return wasLiked; // rien à faire → état inchangé
+
+        const isLiking = !likeSnap.exists();
+        const current  = pubSnap.data().likes || 0;
+
+        if (isLiking) {
+          transaction.set(likeRef, { uid: user.uid, date: serverTimestamp() });
+          transaction.update(pubRef, { likes: current + 1 });
+        } else {
+          transaction.delete(likeRef);
+          transaction.update(pubRef, { likes: Math.max(current - 1, 0) });
+        }
+        return isLiking;
+      });
+
+      if (finalState !== expected) {
+        // Le résultat Firestore diffère de l'optimiste → rollback
+        setLiked(wasLiked);
+        setLikesCount(c => c + (wasLiked ? 1 : -1));
+      } else if (finalState && pub?.proUid && pub.proUid !== user.uid) {
+        notifyOwner(pub.proUid, {
+          title: 'Nouveau like ! ❤️',
+          body: `${profile?.nom || 'Quelqu\'un'} a aimé votre réalisation.`,
+          type: 'like',
+          publicationId: id,
+        });
+      }
+    } catch (_) {
+      setLiked(wasLiked);
+      setLikesCount(c => c + (wasLiked ? 1 : -1));
+    }
   };
 
+  // Ajouter un commentaire — schéma + transaction alignés strictement sur
+  // firestore_service.dart → addComment (mobile) : un commentaire ne peut
+  // être posté que par un utilisateur connecté, sous sa propre identité
+  // (uid, displayName, photoUrl, text, date), et l'incrément de commentsCount
+  // se fait dans la même transaction Firestore que la création du document
+  // (cohérence garantie, comme côté mobile — jamais deux écritures séparées).
   const handleAddComment = async (e) => {
     e.preventDefault();
+    if (!user) return; // le formulaire n'est rendu que si user est connecté
     const text = commentText.trim();
-    const name = commentName.trim() || (profile?.nom) || 'Anonyme';
     if (!text) return;
     setSendingComment(true);
     try {
+      const pubRef     = doc(db, 'publications', id);
+      const commentRef = doc(collection(db, 'publications', id, 'comments'));
       const newComment = {
-        texte: text,
-        auteurNom: name,
-        auteurUid: user?.uid || null,
-        createdAt: serverTimestamp(),
+        uid: user.uid,
+        displayName: profile?.nom || user.displayName || 'Anonyme',
+        photoUrl: profile?.photoUrl || user.photoURL || '',
+        text,
+        date: serverTimestamp(),
       };
-      const ref = await addDoc(collection(db, 'publications', id, 'commentaires'), newComment);
-      setComments(prev => [...prev, { id: ref.id, ...newComment, createdAt: new Date() }]);
-      // Incrémenter commentsCount sur la publication
-      await updateDoc(doc(db, 'publications', id), { commentsCount: increment(1) }).catch(() => {});
+      await runTransaction(db, async (transaction) => {
+        const pubSnap = await transaction.get(pubRef);
+        if (!pubSnap.exists()) return;
+        const current = pubSnap.data().commentsCount || 0;
+        transaction.set(commentRef, newComment);
+        transaction.update(pubRef, { commentsCount: current + 1 });
+      });
+      setComments(prev => [...prev, { id: commentRef.id, ...newComment, date: new Date() }]);
       setCommentText('');
+      if (pub?.proUid && pub.proUid !== user.uid) {
+        notifyOwner(pub.proUid, {
+          title: 'Nouveau commentaire ! 💬',
+          body: `${newComment.displayName} a commenté votre réalisation.`,
+          type: 'comment',
+          publicationId: id,
+        });
+      }
     } catch (_) {}
     setSendingComment(false);
   };
@@ -202,8 +289,8 @@ export default function PublicationDetailPage() {
               {pub.ville && (
                 <span className="pub-meta-item"><FiMapPin /> {pub.ville}</span>
               )}
-              {pub.nombreVues > 0 && (
-                <span className="pub-meta-item"><FiEye /> {pub.nombreVues} vues</span>
+              {(pub.vues > 0 || pub.nombreVues > 0) && (
+                <span className="pub-meta-item"><FiEye /> {pub.vues ?? pub.nombreVues} vues</span>
               )}
               {d && (
                 <span className="pub-meta-item">
@@ -275,13 +362,17 @@ export default function PublicationDetailPage() {
               <div className="pub-comments-list">
                 {comments.map((c, i) => (
                   <div key={c.id || i} className="pub-comment-item">
-                    <div className="pub-comment-avatar">{(c.auteurNom || 'A').charAt(0).toUpperCase()}</div>
+                    {c.photoUrl ? (
+                      <img src={c.photoUrl} alt="" className="pub-comment-avatar pub-comment-avatar--img" />
+                    ) : (
+                      <div className="pub-comment-avatar">{(c.displayName || 'A').charAt(0).toUpperCase()}</div>
+                    )}
                     <div className="pub-comment-body">
-                      <strong className="pub-comment-name">{c.auteurNom || 'Anonyme'}</strong>
-                      <p className="pub-comment-text">{c.texte}</p>
-                      {c.createdAt && (
+                      <strong className="pub-comment-name">{c.displayName || 'Anonyme'}</strong>
+                      <p className="pub-comment-text">{c.text}</p>
+                      {c.date && (
                         <span className="pub-comment-date">
-                          {(c.createdAt?.toDate ? c.createdAt.toDate() : new Date(c.createdAt))
+                          {(c.date?.toDate ? c.date.toDate() : new Date(c.date))
                             .toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                         </span>
                       )}
@@ -293,39 +384,37 @@ export default function PublicationDetailPage() {
               <p className="pub-no-comments">Aucun commentaire pour l'instant. Soyez le premier !</p>
             )}
 
-            {/* Formulaire */}
-            <form className="pub-comment-form" onSubmit={handleAddComment}>
-              {!user && (
-                <input
-                  type="text"
-                  className="pub-comment-name-input"
-                  placeholder="Votre prénom (optionnel)"
-                  value={commentName}
-                  onChange={e => setCommentName(e.target.value)}
-                  maxLength={40}
-                />
-              )}
-              <div className="pub-comment-input-row">
-                <textarea
-                  ref={commentInputRef}
-                  className="pub-comment-textarea"
-                  placeholder="Écrivez un commentaire…"
-                  value={commentText}
-                  onChange={e => setCommentText(e.target.value)}
-                  rows={2}
-                  maxLength={500}
-                  required
-                />
-                <button
-                  type="submit"
-                  className="pub-comment-send"
-                  disabled={sendingComment || !commentText.trim()}
-                  aria-label="Envoyer"
-                >
-                  <FiSend size={18} />
-                </button>
-              </div>
-            </form>
+            {/* Formulaire — un commentaire nécessite d'être connecté, exactement
+                comme côté mobile (firestore_service.dart → addComment retourne
+                immédiatement si aucun utilisateur Firebase Auth n'est actif) */}
+            {user ? (
+              <form className="pub-comment-form" onSubmit={handleAddComment}>
+                <div className="pub-comment-input-row">
+                  <textarea
+                    ref={commentInputRef}
+                    className="pub-comment-textarea"
+                    placeholder="Écrivez un commentaire…"
+                    value={commentText}
+                    onChange={e => setCommentText(e.target.value)}
+                    rows={2}
+                    maxLength={500}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="pub-comment-send"
+                    disabled={sendingComment || !commentText.trim()}
+                    aria-label="Envoyer"
+                  >
+                    <FiSend size={18} />
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <p className="pub-comment-login-hint">
+                <Link to="/connexion">Connectez-vous</Link> pour laisser un commentaire.
+              </p>
+            )}
           </div>
 
           {/* Artisan section mobile */}

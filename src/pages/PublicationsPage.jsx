@@ -51,6 +51,7 @@ export default function PublicationsPage() {
     const q = norm(search);
     return publications.filter(p => {
       if (q && !norm(p.titre).includes(q) && !norm(p.description).includes(q)
+           && !norm(p.legende).includes(q)
            && !norm(p.categorie).includes(q) && !norm(p.ville).includes(q))
         return false;
       if (category && norm(p.categorie) !== norm(category)) return false;
@@ -275,9 +276,9 @@ function PublicationCard({ pub }) {
           {pub.ville && (
             <span className="pub-meta-item"><FiMapPin size={12} /> {pub.ville}</span>
           )}
-          {(pub.nombreVues > 0 || pub.likes > 0) && (
+          {(pub.vues > 0 || pub.nombreVues > 0 || pub.likes > 0) && (
             <span className="pub-meta-item">
-              <FiEye size={12} /> {pub.nombreVues || pub.likes || 0}
+              <FiEye size={12} /> {pub.vues || pub.nombreVues || pub.likes || 0}
             </span>
           )}
           {dateStr && <span className="pub-date">{dateStr}</span>}

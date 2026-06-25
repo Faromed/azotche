@@ -154,9 +154,13 @@ export default async function handler(req, res) {
       console.log(`[FedaPay] Transaction ${fedapayTransactionId} — statut: ${status}`);
 
       // Transaction non approuvée
+      // Valeur exacte de l'enum mobile TransactionStatus (transaction_model.dart) :
+      // enAttente / reussi / echoue. Écriture via Admin SDK (contourne les règles
+      // Firestore), mais la chaîne doit malgré tout matcher l'enum mobile pour que
+      // toute lecture (web/mobile) du champ 'statut' reste cohérente.
       if (status !== 'approved') {
         await db.collection('transactions').doc(localTransactionId).update({
-          statut:    status === 'declined' ? 'refuse' : 'echec',
+          statut:    'echoue',
           updatedAt: FieldValue.serverTimestamp(),
         }).catch(console.error);
         return res.status(200).json({ success: false, status });
@@ -169,7 +173,8 @@ export default async function handler(req, res) {
       const txRef    = db.collection('transactions').doc(localTransactionId);
       const now      = new Date();
 
-      batch.update(txRef, { statut: 'succes', updatedAt: FieldValue.serverTimestamp() });
+      // Valeur exacte de l'enum mobile TransactionStatus (transaction_model.dart).
+      batch.update(txRef, { statut: 'reussi', updatedAt: FieldValue.serverTimestamp() });
 
       if (type === 'activation' || type === 'abonnement') {
         const fin = new Date(now);

@@ -135,8 +135,10 @@ async function verifyFedaPayTransaction({
 
     if (status !== 'approved') {
       // hasOnly(['statut']) => pas de updatedAt
+      // Valeur exacte de l'enum mobile TransactionStatus (transaction_model.dart) :
+      // enAttente / reussi / echoue — la regle Firestore n'autorise QUE ces valeurs.
       await updateDoc(doc(db, 'transactions', localTransactionId), {
-        statut: status === 'declined' ? 'refuse' : 'echec',
+        statut: 'echoue',
       }).catch(console.error);
       return { success: false, status };
     }
@@ -173,7 +175,9 @@ async function applyEffectsClientSide({ uid, type, dureeJours, localTransactionI
   const proRef  = doc(db, 'pros',  uid);
   const txRef   = doc(db, 'transactions', localTransactionId);
 
-  await updateDoc(txRef, { statut: 'succes' }).catch(console.error);
+  // Valeur exacte de l'enum mobile TransactionStatus (transaction_model.dart) :
+  // enAttente / reussi / echoue — la regle Firestore n'autorise QUE ces valeurs.
+  await updateDoc(txRef, { statut: 'reussi' }).catch(console.error);
 
   if (type === 'activation' || type === 'abonnement') {
     const fin = new Date(now);

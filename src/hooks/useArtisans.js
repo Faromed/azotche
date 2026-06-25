@@ -126,18 +126,26 @@ export async function fetchArtisanByUid(uid) {
   return mergeArtisan(userDoc, proData);
 }
 
-/** Charge les avis d'un artisan */
+/**
+ * Charge les avis d'un artisan.
+ * Fusionne le schéma mobile strict (proUid/date) avec l'ancien schéma web
+ * (artisanUid/dateCreation) pour ne pas faire disparaître les avis déjà
+ * déposés avant l'alignement des deux plateformes — voir useAvis.js.
+ */
 export async function fetchAvisForArtisan(uid) {
   try {
-    const { limit, orderBy } = await import('firebase/firestore');
-    const q = query(
-      collection(db, 'avis'),
-      where('proUid', '==', uid),
-      orderBy('date', 'desc'),
-      limit(10),
-    );
-    const snap = await getDocs(q);
-    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const { limit } = await import('firebase/firestore');
+    const [snapNew, snapLegacy] = await Promise.all([
+      getDocs(query(collection(db, 'avis'), where('proUid', '==', uid), limit(10))),
+      getDocs(query(collection(db, 'avis'), where('artisanUid', '==', uid), limit(10))),
+    ]);
+    const byId = new Map();
+    [...snapNew.docs, ...snapLegacy.docs].forEach(d => byId.set(d.id, { id: d.id, ...d.data() }));
+    const getTs = (a) => (a.date || a.dateCreation)?.toMillis?.() ?? 0;
+    return Array.from(byId.values())
+      .filter(a => !a.statut || a.statut === 'approved' || a.statut === 'actif')
+      .sort((a, b) => getTs(b) - getTs(a))
+      .slice(0, 10);
   } catch (e) {
     console.error('Erreur avis:', e);
     return [];

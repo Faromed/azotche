@@ -2065,6 +2065,7 @@ button { cursor: pointer; font-family: var(--font); border: none; outline: none;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: .9rem;
 }
+.pub-comment-avatar--img { object-fit: cover; background: var(--orange); }
 .pub-comment-body { flex: 1; }
 .pub-comment-name { font-size: .88rem; font-weight: 700; color: var(--text); display: block; margin-bottom: 3px; }
 .pub-comment-text { font-size: .88rem; color: #444; line-height: 1.5; margin: 0 0 4px; }
@@ -2073,12 +2074,12 @@ button { cursor: pointer; font-family: var(--font); border: none; outline: none;
 
 /* Formulaire commentaire */
 .pub-comment-form { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
-.pub-comment-name-input {
-  border: 1.5px solid var(--border); border-radius: 8px;
-  padding: 9px 12px; font-size: .88rem; outline: none;
-  transition: border-color .2s;
+.pub-comment-login-hint {
+  font-size: .88rem; color: #888; margin: 4px 0 0;
+  padding: 12px 14px; background: #f8f8f8; border-radius: 10px; text-align: center;
 }
-.pub-comment-name-input:focus { border-color: var(--orange); }
+.pub-comment-login-hint a { color: var(--orange); font-weight: 600; text-decoration: none; }
+.pub-comment-login-hint a:hover { text-decoration: underline; }
 .pub-comment-input-row { display: flex; gap: 8px; align-items: flex-end; }
 .pub-comment-textarea {
   flex: 1; border: 1.5px solid var(--border); border-radius: 10px;

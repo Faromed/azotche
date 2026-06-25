@@ -31,17 +31,19 @@ export default function ParrainagePage() {
     const uid = user.uid;
 
     Promise.all([
-      // Nombre de filleuls
-      getDocs(query(collection(db, 'users'), where('parrainUid', '==', uid)))
+      // Nombre de filleuls — referredBy contient l'UID du parrain (jamais
+      // un champ "parrainUid", qu'aucun code, mobile ou web, n'écrit).
+      getDocs(query(collection(db, 'users'), where('referredBy', '==', uid)))
         .then(snap => snap.size),
 
       // Crédits depuis le profil utilisateur
       getDoc(doc(db, 'users', uid))
         .then(snap => snap.data()?.creditParrainage || 0),
 
-      // Taux de conversion depuis Firestore
-      getDoc(doc(db, 'parametres', 'config'))
-        .then(snap => snap.data()?.joursBoostParCredit || 2),
+      // Taux de conversion — même emplacement que le mobile :
+      // config/app → credit_boost_jours_par_credit (et non parametres/config).
+      getDoc(doc(db, 'config', 'app'))
+        .then(snap => snap.data()?.credit_boost_jours_par_credit ?? 2),
     ]).then(([count, cred, taux]) => {
       setFilleulsCount(count);
       setCredits(cred);

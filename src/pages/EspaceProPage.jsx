@@ -26,14 +26,6 @@ const METIERS = [
   'Informaticien', 'Traiteur', 'Carreleur', 'Climaticien', 'Autre',
 ];
 
-const CATEGORIES = [
-  'Couture', 'Coiffure', 'Plomberie', 'Electricite', 'Maconnerie',
-  'Menuiserie', 'Soudure', 'Mecanique', 'Peinture', 'Photographie',
-  'Informatique', 'Traiteur', 'Carrelage', 'Climatisation', 'Autre',
-];
-
-const formatPrix = (p) => p != null ? Number(p).toLocaleString('fr-FR') + ' FCFA' : null;
-
 export default function EspaceProPage() {
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
@@ -77,19 +69,18 @@ export default function EspaceProPage() {
   const galleryInputRef = useRef(null);
   const pubPhotoRef     = useRef(null);
 
-  // Publications
+  // Publications — modèle "post social" aligné strictement sur le mobile
+  // (dashboard_provider.dart) : une légende optionnelle + jusqu'à 5 photos.
+  // Plus de titre/prix/categorie/ville (champs web qui n'existent pas côté Flutter).
   const [publications, setPublications]   = useState([]);
   const [loadingPubs, setLoadingPubs]     = useState(false);
   const [showPubForm, setShowPubForm]     = useState(false);
   const [editingPub, setEditingPub]       = useState(null); // null = creation, else pub object
-  const [pubTitre, setPubTitre]           = useState('');
-  const [pubDescription, setPubDescription] = useState('');
-  const [pubPrix, setPubPrix]             = useState('');
-  const [pubCategorie, setPubCategorie]   = useState('');
-  const [pubVille, setPubVille]           = useState('');
+  const [pubLegende, setPubLegende]       = useState('');
   const [pubPhotos, setPubPhotos]         = useState([]);
   const [uploadingPubPhoto, setUploadingPubPhoto] = useState(false);
   const [deletingPubId, setDeletingPubId] = useState(null);
+  const MAX_PUB_PHOTOS = 5; // identique à add_publication_screen.dart (_maxPhotos)
 
   // ── Quotas publications depuis config/app ────────────────────────────────────
   const [pubQuota, setPubQuota] = useState({ gratuit: 3, pro: 15 });
@@ -216,19 +207,22 @@ export default function EspaceProPage() {
       return;
     }
     setEditingPub(null);
-    setPubTitre(''); setPubDescription(''); setPubPrix('');
-    setPubCategorie(''); setPubVille(ville || ''); setPubPhotos([]);
+    setPubLegende('');
+    setPubPhotos([]);
     setShowPubForm(true);
   };
 
   const openEditForm = (pub) => {
     setEditingPub(pub);
-    setPubTitre(pub.titre || '');
-    setPubDescription(pub.description || '');
-    setPubPrix(pub.prix != null ? String(pub.prix) : '');
-    setPubCategorie(pub.categorie || '');
-    setPubVille(pub.ville || '');
-    setPubPhotos(pub.photos || []);
+    // Compat : une ancienne publication web pouvait avoir titre/description
+    // au lieu de legende — on récupère ce qui existe pour ne rien perdre.
+    setPubLegende(pub.legende || pub.titre || pub.description || '');
+    setPubPhotos(
+      pub.imageUrls?.length ? pub.imageUrls
+        : pub.photos?.length ? pub.photos
+        : pub.imageUrl ? [pub.imageUrl]
+        : []
+    );
     setShowPubForm(true);
   };
 
@@ -241,7 +235,7 @@ export default function EspaceProPage() {
   const handleAddPubPhoto = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (pubPhotos.length >= 4) { alert('Maximum 4 photos par publication.'); return; }
+    if (pubPhotos.length >= MAX_PUB_PHOTOS) { alert(`Maximum ${MAX_PUB_PHOTOS} photos par publication.`); return; }
     setUploadingPubPhoto(true);
     const result = await uploadPublicationPhoto(file);
     if (result.success) setPubPhotos(prev => [...prev, result.url]);
@@ -254,14 +248,10 @@ export default function EspaceProPage() {
   };
 
   const handleSavePub = async () => {
-    if (!pubTitre.trim()) { alert('Le titre est obligatoire.'); return; }
+    if (pubPhotos.length === 0) { alert('Ajoutez au moins une photo.'); return; }
     const data = {
-      titre: pubTitre.trim(),
-      description: pubDescription.trim(),
-      prix: pubPrix ? parseFloat(pubPrix) : null,
-      categorie: pubCategorie,
-      ville: pubVille.trim(),
-      photos: pubPhotos,
+      legende: pubLegende.trim(),
+      imageUrls: pubPhotos,
       proNom: nom || profile?.nom || '',
       proPhotoUrl: artisan?.photoUrl || '',
     };
@@ -269,21 +259,29 @@ export default function EspaceProPage() {
     if (editingPub) {
       result = await updatePublication(editingPub.id, data);
       if (result.success) {
-        setPublications(prev => prev.map(p => p.id === editingPub.id ? { ...p, ...data } : p));
+        setPublications(prev => prev.map(p => p.id === editingPub.id
+          ? { ...p, ...data, imageUrl: pubPhotos[0] || '', photosCount: pubPhotos.length }
+          : p));
       }
     } else {
       result = await createPublication(data);
       if (result.success) {
-        setPublications(prev => [{ id: result.id, ...data, statut: 'actif', nombreVues: 0, dateCreation: new Date() }, ...prev]);
+        setPublications(prev => [{
+          id: result.id, ...data,
+          imageUrl: pubPhotos[0] || '', photosCount: pubPhotos.length,
+          likes: 0, commentsCount: 0, vues: 0,
+          datePublication: new Date(),
+        }, ...prev]);
       }
     }
     if (result.success) closePubForm();
   };
 
   const handleTogglePub = async (pub) => {
+    const isActive = !pub.statut || pub.statut === 'actif';
     const result = await togglePublication(pub.id, pub.statut);
     if (result.success) {
-      const newStatut = pub.statut === 'actif' ? 'inactif' : 'actif';
+      const newStatut = isActive ? 'inactif' : 'actif';
       setPublications(prev => prev.map(p => p.id === pub.id ? { ...p, statut: newStatut } : p));
     }
   };
@@ -291,7 +289,8 @@ export default function EspaceProPage() {
   const handleDeletePub = async (pub) => {
     if (!window.confirm('Supprimer definitivement cette publication ?')) return;
     setDeletingPubId(pub.id);
-    const result = await deletePublication(pub.id, pub.photos || []);
+    const photos = pub.imageUrls?.length ? pub.imageUrls : pub.photos || [];
+    const result = await deletePublication(pub.id, photos);
     if (result.success) setPublications(prev => prev.filter(p => p.id !== pub.id));
     setDeletingPubId(null);
   };
@@ -565,7 +564,7 @@ export default function EspaceProPage() {
                 className={`btn btn-primary ep-add-btn ${publications.length >= getPubLimit() ? 'disabled' : ''}`}
                 onClick={openCreateForm}
               >
-                <FiPlus /> Nouvelle offre
+                <FiPlus /> Nouvelle publication
               </button>
             </div>
 
@@ -583,36 +582,41 @@ export default function EspaceProPage() {
             ) : publications.length === 0 ? (
               <div className="mespub-empty">
                 <p>Vous n'avez pas encore de publication.</p>
-                <p>Creez votre premiere offre de service pour attirer des clients !</p>
+                <p>Partagez vos plus belles realisations en photos pour attirer des clients !</p>
                 <button className="btn btn-primary" onClick={openCreateForm}>
-                  <FiPlus /> Creer une offre
+                  <FiPlus /> Creer une publication
                 </button>
               </div>
             ) : (
               <div className="mespub-list">
                 {publications.map(pub => {
-                  const prix = formatPrix(pub.prix);
                   const isDeleting = deletingPubId === pub.id;
+                  const isActive = !pub.statut || pub.statut === 'actif';
+                  const thumb = pub.imageUrls?.[0] || pub.photos?.[0] || pub.imageUrl || null;
+                  const photoCount = pub.imageUrls?.length || pub.photos?.length || (pub.imageUrl ? 1 : 0);
+                  const vues = pub.vues ?? pub.nombreVues ?? 0;
+                  const legende = pub.legende || pub.titre || pub.description || '';
                   return (
                     <div key={pub.id} className="mespub-item" style={{ opacity: isDeleting ? 0.5 : 1 }}>
                       {/* Miniature */}
                       <div className="mespub-img">
-                        {pub.photos?.[0]
-                          ? <img src={pub.photos[0]} alt={pub.titre} />
-                          : <div className="mespub-img-placeholder">{pub.categorie?.charAt(0) || '🛠'}</div>}
+                        {thumb
+                          ? <img src={thumb} alt={legende || 'Réalisation'} />
+                          : <div className="mespub-img-placeholder">🛠</div>}
                       </div>
 
                       {/* Info */}
                       <div className="mespub-info">
-                        <div className="mespub-title">{pub.titre}</div>
-                        <div className="mespub-meta">
-                          {pub.categorie && <span>{pub.categorie}</span>}
-                          {pub.ville && <span><FiMapPin /> {pub.ville}</span>}
-                          {pub.nombreVues > 0 && <span><FiEye /> {pub.nombreVues} vues</span>}
+                        <div className="mespub-title">
+                          {legende ? (legende.length > 60 ? legende.slice(0, 60) + '…' : legende) : 'Sans légende'}
                         </div>
-                        {prix && <div className="mespub-prix">{prix}</div>}
-                        <span className={`mespub-statut ${pub.statut}`}>
-                          {pub.statut === 'actif' ? <><FiCheck /> Active</> : 'Inactive'}
+                        <div className="mespub-meta">
+                          {photoCount > 0 && <span><FiImage /> {photoCount} photo{photoCount > 1 ? 's' : ''}</span>}
+                          {pub.likes > 0 && <span><FiStar /> {pub.likes}</span>}
+                          {vues > 0 && <span><FiEye /> {vues} vues</span>}
+                        </div>
+                        <span className={`mespub-statut ${isActive ? 'actif' : 'inactif'}`}>
+                          {isActive ? <><FiCheck /> Active</> : 'Inactive'}
                         </span>
                       </div>
 
@@ -622,11 +626,11 @@ export default function EspaceProPage() {
                           <FiEdit3 /> Modifier
                         </button>
                         <button
-                          className={`mespub-btn ${pub.statut === 'actif' ? 'toggle-on' : 'toggle-off'}`}
+                          className={`mespub-btn ${isActive ? 'toggle-on' : 'toggle-off'}`}
                           onClick={() => handleTogglePub(pub)}
                           disabled={savingPub || isDeleting}
                         >
-                          {pub.statut === 'actif' ? <><FiToggleRight /> Desactiver</> : <><FiToggleLeft /> Activer</>}
+                          {isActive ? <><FiToggleRight /> Desactiver</> : <><FiToggleLeft /> Activer</>}
                         </button>
                         <Link to={`/publications/${pub.id}`} className="mespub-btn edit" target="_blank">
                           <FiEye /> Voir
@@ -689,7 +693,7 @@ export default function EspaceProPage() {
             ) : (
               <div className="avis-list">
                 {avis.map(av => {
-                  const d = av.dateCreation?.toDate?.() ?? null;
+                  const d = av.date?.toDate?.() ?? av.dateCreation?.toDate?.() ?? null;
                   return (
                     <div key={av.id} className="avis-card">
                       <div className="avis-header">
@@ -842,64 +846,14 @@ export default function EspaceProPage() {
         <div className="pub-form-overlay" onClick={e => { if (e.target === e.currentTarget) closePubForm(); }}>
           <div className="pub-form-modal">
             <div className="pub-form-modal-head">
-              <h3>{editingPub ? "Modifier l'offre" : 'Nouvelle offre de service'}</h3>
+              <h3>{editingPub ? 'Modifier la publication' : 'Nouvelle publication'}</h3>
               <button className="pub-form-modal-close" onClick={closePubForm}><FiX /></button>
             </div>
 
             <div className="pub-form-body">
-              {/* Titre */}
+              {/* Photos — au moins 1, jusqu'à 5 (identique au mobile) */}
               <div className="pub-form-field">
-                <label>Titre de l'offre *</label>
-                <input
-                  type="text" value={pubTitre}
-                  onChange={e => setPubTitre(e.target.value)}
-                  placeholder="Ex: Couture de boubou sur mesure" maxLength={100}
-                />
-              </div>
-
-              {/* Categorie + Ville */}
-              <div className="pub-form-row">
-                <div className="pub-form-field">
-                  <label>Categorie</label>
-                  <select value={pubCategorie} onChange={e => setPubCategorie(e.target.value)}>
-                    <option value="">— Choisir —</option>
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div className="pub-form-field">
-                  <label>Ville</label>
-                  <input
-                    type="text" value={pubVille}
-                    onChange={e => setPubVille(e.target.value)}
-                    placeholder="Ex: Cotonou"
-                  />
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="pub-form-field">
-                <label>Description</label>
-                <textarea
-                  value={pubDescription}
-                  onChange={e => setPubDescription(e.target.value)}
-                  placeholder="Decrivez votre offre de service..."
-                  rows={4} maxLength={500}
-                />
-              </div>
-
-              {/* Prix */}
-              <div className="pub-form-field pub-form-field--half">
-                <label>Prix (FCFA)</label>
-                <input
-                  type="number" value={pubPrix}
-                  onChange={e => setPubPrix(e.target.value)}
-                  placeholder="Ex: 5000" min={0}
-                />
-              </div>
-
-              {/* Photos */}
-              <div className="pub-form-field">
-                <label>Photos ({pubPhotos.length}/4)</label>
+                <label>Photos ({pubPhotos.length}/{MAX_PUB_PHOTOS}) *</label>
                 <div className="pub-form-photos">
                   {pubPhotos.map(url => (
                     <div key={url} className="pub-form-photo">
@@ -909,7 +863,7 @@ export default function EspaceProPage() {
                       </button>
                     </div>
                   ))}
-                  {pubPhotos.length < 4 && (
+                  {pubPhotos.length < MAX_PUB_PHOTOS && (
                     <label className="pub-form-photo-add">
                       {uploadingPubPhoto
                         ? <FiLoader className="spinner" />
@@ -923,6 +877,18 @@ export default function EspaceProPage() {
                     </label>
                   )}
                 </div>
+                <p className="field-hint">Au moins une photo est requise.</p>
+              </div>
+
+              {/* Légende (optionnelle, comme sur le mobile) */}
+              <div className="pub-form-field">
+                <label>Légende (optionnel)</label>
+                <textarea
+                  value={pubLegende}
+                  onChange={e => setPubLegende(e.target.value)}
+                  placeholder="Décrivez cette réalisation…"
+                  rows={4} maxLength={500}
+                />
               </div>
 
               {/* Erreur publication */}
@@ -943,7 +909,7 @@ export default function EspaceProPage() {
               >
                 {savingPub
                   ? <><FiLoader className="spinner" /> Enregistrement…</>
-                  : editingPub ? <><FiSave /> Mettre a jour</> : <><FiPlus /> Publier l'offre</>}
+                  : editingPub ? <><FiSave /> Mettre a jour</> : <><FiPlus /> Publier</>}
               </button>
             </div>
           </div>{/* /pub-form-modal */}
