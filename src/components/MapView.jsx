@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 // Centres géographiques des principales villes du Bénin
 const VILLE_CENTERS = {
@@ -43,8 +45,7 @@ export default function MapView({ artisan, height = 280 }) {
   const mapRef       = useRef(null);
 
   useEffect(() => {
-    const L = window.L;
-    if (!L || !containerRef.current) return;
+    if (!containerRef.current) return;
 
     // Éviter la double-initialisation si la carte existe déjà
     if (mapRef.current) {

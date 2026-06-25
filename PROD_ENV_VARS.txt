@@ -7,7 +7,39 @@
 #    2. Collez le nom (KEY) et la valeur (VALUE)
 #    3. Cochez "Production" (+ "Preview" si vous voulez)
 #    4. Cliquez "Save"
+#
+#  ⚠️ Après l'ajout des variables manquantes ci-dessous (VITE_FIREBASE_*),
+#     un redéploiement est nécessaire (Vite les inline au moment du build —
+#     elles ne sont PAS lues au runtime). Dans Vercel : Deployments → "..." sur
+#     le dernier déploiement → Redeploy.
 # ═══════════════════════════════════════════════════════════════════════════════
+
+
+# ── Firebase Web (client) — OBLIGATOIRE ──────────────────────────────────────
+# Sans ces 6 variables, le site lève "Firebase: Error (auth/invalid-api-key)"
+# au chargement (apiKey vaut undefined dans le bundle de production).
+# Ce ne sont PAS des secrets serveur (clé d'identification client Firebase) :
+# leur protection passe par les règles Firestore/Storage + la restriction de
+# la clé dans Google Cloud Console (déjà faite — voir tâche #59 du projet).
+# Valeurs : Firebase Console → Project Settings → Vos applications → SDK config.
+
+KEY:   VITE_FIREBASE_API_KEY
+VALUE: AIzaSyD4hmGzST17RQzALGrgMbgJYAAkT-AuHgg
+
+KEY:   VITE_FIREBASE_AUTH_DOMAIN
+VALUE: artisan-connect-benin.firebaseapp.com
+
+KEY:   VITE_FIREBASE_PROJECT_ID
+VALUE: artisan-connect-benin
+
+KEY:   VITE_FIREBASE_STORAGE_BUCKET
+VALUE: artisan-connect-benin.firebasestorage.app
+
+KEY:   VITE_FIREBASE_MESSAGING_SENDER_ID
+VALUE: 892467393728
+
+KEY:   VITE_FIREBASE_APP_ID
+VALUE: 1:892467393728:web:f32dfd776b98ca5c00a925
 
 
 # ── FedaPay (OBLIGATOIRE) ────────────────────────────────────────────────────

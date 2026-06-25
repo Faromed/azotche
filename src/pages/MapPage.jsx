@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import {
   FiSearch, FiMapPin, FiNavigation, FiSliders, FiX,
   FiPhone, FiStar, FiList, FiMap, FiUser, FiAlertCircle,
@@ -120,8 +122,7 @@ export default function MapPage() {
 
   // ── Init carte ───────────────────────────────────────────────────────────────
   useEffect(() => {
-    const L = window.L;
-    if (!L || !mapContainerRef.current || mapRef.current) return;
+    if (!mapContainerRef.current || mapRef.current) return;
 
     const map = L.map(mapContainerRef.current, {
       center: DEFAULT_CENTER,
@@ -143,9 +144,8 @@ export default function MapPage() {
 
   // ── Marqueurs artisans ───────────────────────────────────────────────────────
   useEffect(() => {
-    const L = window.L;
     const map = mapRef.current;
-    if (!L || !map) return;
+    if (!map) return;
 
     // Supprimer anciens marqueurs
     Object.values(markersRef.current).forEach(m => m.remove());
@@ -187,9 +187,8 @@ export default function MapPage() {
 
   // ── Marqueur utilisateur + cercle rayon ──────────────────────────────────────
   useEffect(() => {
-    const L = window.L;
     const map = mapRef.current;
-    if (!L || !map) return;
+    if (!map) return;
 
     if (userMarkerRef.current) { userMarkerRef.current.remove(); userMarkerRef.current = null; }
     if (circleRef.current) { circleRef.current.remove(); circleRef.current = null; }
