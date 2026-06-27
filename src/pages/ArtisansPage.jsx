@@ -2,11 +2,18 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   FiSearch, FiMapPin, FiStar, FiX, FiChevronDown,
-  FiLoader, FiAward, FiZap, FiGrid, FiUser, FiMap,
-  FiNavigation, FiBriefcase,
+  FiLoader, FiAward, FiZap, FiGrid, FiMap,
+  FiNavigation, FiBriefcase, FiFilter, FiWifiOff,
 } from 'react-icons/fi';
 import { useArtisans } from '../hooks/useArtisans';
 import usePageMeta from '../hooks/usePageMeta';
+import { TYPES_RECHERCHE, hintForType } from '../config/searchTypes';
+
+// Délai de debounce avant de lancer la recherche serveur après une frappe
+// texte (évite un appel réseau à chaque caractère). Les actions délibérées
+// (chip catégorie/ville, changement de type de recherche) restent immédiates
+// — voir l'effet de recherche ci-dessous, miroir de SearchScreen (mobile).
+const SEARCH_DEBOUNCE_MS = 450;
 
 // ── Haversine ─────────────────────────────────────────────────────────────────
 const VILLE_CENTERS = {
@@ -56,20 +63,23 @@ function Stars({ note, max = 5 }) {
   );
 }
 
-// ── Normalisation ─────────────────────────────────────────────────────────────
-const norm = (s) =>
-  (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
-
 export default function ArtisansPage() {
   usePageMeta({ title: 'Annuaire des artisans', description: 'Trouvez des artisans qualifies au Benin : plombiers, electriciens, tailleurs, coiffeurs et plus. Annuaire Azotche.' });
 
-  const { allArtisans, displayCount, loading, error, loadArtisans, loadMore } = useArtisans();
+  const {
+    allArtisans, displayCount, loading, error, loadArtisans, loadMore,
+    searchResults, searching, searchError, searchTotal, searchArtisansServer, clearSearch,
+  } = useArtisans();
   const [searchParams] = useSearchParams();
 
-  const [search, setSearch]     = useState(() => searchParams.get('q') || '');
-  const [category, setCategory] = useState('');
-  const [ville, setVille]       = useState('');
+  const [search, setSearch]         = useState(() => searchParams.get('q') || '');
+  const [category, setCategory]     = useState('');
+  const [ville, setVille]           = useState('');
+  const [searchType, setSearchType] = useState('general');
   const initialised = useRef(false);
+  const debounceRef = useRef(null);
+  const prevCriteriaRef = useRef({ category: '', ville: '', searchType: 'general' });
+  const firstSearchRunRef = useRef(true);
 
   // Géolocalisation visiteur pour distance
   const [userCoords, setUserCoords] = useState(null);
@@ -115,36 +125,52 @@ export default function ArtisansPage() {
     ];
   }, [allArtisans]);
 
-  const hasFilters = !!(search || category || ville);
+  // ── Recherche 100% Firebase, sur TOUTE la base ──────────────────────────────
+  // Dès qu'un critère est actif (texte, catégorie ou ville), on interroge la
+  // Cloud Function `searchArtisans` (tolérante aux fautes, classement serveur)
+  // au lieu de filtrer la page déjà chargée en mémoire — sinon un artisan
+  // hors de cette page ne serait jamais trouvé. Sans critère, on retombe sur
+  // l'affichage local paginé existant (aucun appel réseau superflu).
+  // Miroir exact de SearchScreen (mobile) : _hasActiveServerCriteria / _updateResults.
+  const hasFilters = !!(search.trim() || category || ville);
 
-  const displayed = useMemo(() => {
-    const q = norm(search);
-    const filtered = allArtisans.filter(a => {
-      if (q && !norm(a.nom).includes(q) && !norm(a.metierPrincipal).includes(q) && !norm(a.ville).includes(q))
-        return false;
-      if (category && norm(a.metierPrincipal || '') !== norm(category))
-        return false;
-      if (ville && norm(a.ville) !== norm(ville)) return false;
-      return true;
+  const runSearchNow = useCallback(() => {
+    if (debounceRef.current) { clearTimeout(debounceRef.current); debounceRef.current = null; }
+    if (!hasFilters) { clearSearch(); return; }
+    searchArtisansServer({
+      requete: search.trim(),
+      type: searchType,
+      categorie: category || undefined,
+      ville: ville || undefined,
+      limite: 60,
     });
-    return hasFilters ? filtered : filtered.slice(0, displayCount);
-  }, [allArtisans, search, category, ville, displayCount, hasFilters]);
+  }, [hasFilters, search, searchType, category, ville, searchArtisansServer, clearSearch]);
 
-  const totalFiltered = useMemo(() => {
-    if (hasFilters) return displayed.length;
-    const q = norm(search);
-    return allArtisans.filter(a => {
-      if (q && !norm(a.nom).includes(q) && !norm(a.metierPrincipal).includes(q) && !norm(a.ville).includes(q))
-        return false;
-      if (category && norm(a.metierPrincipal || '') !== norm(category))
-        return false;
-      if (ville && norm(a.ville) !== norm(ville)) return false;
-      return true;
-    }).length;
-  }, [allArtisans, search, category, ville, hasFilters, displayed.length]);
+  // Debounce uniquement quand seul le texte a changé (frappe) ; immédiat pour
+  // les changements structurels (chip catégorie/ville, type de recherche).
+  useEffect(() => {
+    const prev = prevCriteriaRef.current;
+    const onlyTextChanged = prev.category === category && prev.ville === ville && prev.searchType === searchType;
+    prevCriteriaRef.current = { category, ville, searchType };
+
+    // Premier rendu : lancer immédiatement (ex : recherche pré-remplie via ?q=),
+    // comme initState() → _runSearchNow() côté mobile.
+    const delay = firstSearchRunRef.current ? 0 : (onlyTextChanged ? SEARCH_DEBOUNCE_MS : 0);
+    firstSearchRunRef.current = false;
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(runSearchNow, delay);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, category, ville, searchType]);
+
+  const displayed = hasFilters ? searchResults : allArtisans.slice(0, displayCount);
+  const totalFiltered = hasFilters ? searchTotal : allArtisans.length;
+  const isLoadingResults = hasFilters ? searching : loading;
+  const activeError = hasFilters ? searchError : error;
 
   const clientHasMore = !hasFilters && displayCount < totalFiltered;
-  const resetFilters = () => { setSearch(''); setCategory(''); setVille(''); };
+  const resetFilters = () => { setSearch(''); setCategory(''); setVille(''); setSearchType('general'); };
 
   const handleScroll = useCallback(() => {
     if (!clientHasMore) return;
@@ -176,12 +202,16 @@ export default function ArtisansPage() {
           </div>
 
           <div className="artisans-search-bar">
-            <FiSearch className="search-icon" />
+            {searching
+              ? <FiLoader className="search-icon spinner" />
+              : <FiSearch className="search-icon" />
+            }
             <input
               type="text"
-              placeholder="Rechercher un artisan, un métier, une ville…"
+              placeholder={hintForType(searchType)}
               value={search}
               onChange={e => setSearch(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') runSearchNow(); }}
             />
             {search && (
               <button className="clear-btn" onClick={() => setSearch('')}><FiX /></button>
@@ -193,6 +223,25 @@ export default function ArtisansPage() {
       {/* ── Filtres ── */}
       <div className="artisans-filters-bar">
         <div className="container">
+          {/* ── Sélecteur de type de recherche : recherche 100% Firebase, sur ──
+              toute la base, avec tolérance aux fautes — miroir de SearchScreen
+              (mobile). Choisir "Métier" puis taper filtre désormais uniquement
+              sur le métier (avec tolérance), etc. */}
+          <div className="search-type-row">
+            <span className="search-type-label"><FiFilter size={12} /> Rechercher par</span>
+            <div className="type-chips">
+              {TYPES_RECHERCHE.map(t => (
+                <button
+                  key={t.value}
+                  className={`type-chip ${searchType === t.value ? 'active' : ''}`}
+                  onClick={() => setSearchType(t.value)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="filters-row">
             <div className="cat-chips">
               {dynamicCategories.map(cat => (
@@ -234,24 +283,30 @@ export default function ArtisansPage() {
 
       {/* ── Contenu ── */}
       <div className="container artisans-content">
-        {!loading && (
+        {!isLoadingResults && (
           <div className="results-count">
-            <strong>{hasFilters ? displayed.length : totalFiltered}</strong> artisan{totalFiltered !== 1 ? 's' : ''} trouvé{totalFiltered !== 1 ? 's' : ''}
-            {hasFilters && <span className="filter-hint"> · filtres actifs</span>}
+            <strong>{displayed.length}</strong> artisan{displayed.length !== 1 ? 's' : ''} trouvé{displayed.length !== 1 ? 's' : ''}
+            {hasFilters && totalFiltered > displayed.length && (
+              <span className="filter-hint"> · {displayed.length} sur {totalFiltered} résultats</span>
+            )}
+            {hasFilters && totalFiltered <= displayed.length && (
+              <span className="filter-hint"> · recherche sur toute la base</span>
+            )}
             {!hasFilters && clientHasMore && (
               <span className="filter-hint"> · {displayed.length} affichés sur {totalFiltered}</span>
             )}
           </div>
         )}
 
-        {error && (
+        {activeError && (
           <div className="artisans-error">
-            <p>{error}</p>
-            <button className="btn btn-primary" onClick={loadArtisans}>Réessayer</button>
+            <FiWifiOff className="empty-icon-lg" />
+            <p>{activeError}</p>
+            <button className="btn btn-primary" onClick={hasFilters ? runSearchNow : loadArtisans}>Réessayer</button>
           </div>
         )}
 
-        {loading && (
+        {isLoadingResults && displayed.length === 0 && (
           <div className="artisans-grid">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="artisan-card skeleton" />
@@ -259,7 +314,7 @@ export default function ArtisansPage() {
           </div>
         )}
 
-        {!loading && displayed.length === 0 && !error && (
+        {!isLoadingResults && displayed.length === 0 && !activeError && (
           <div className="artisans-empty">
             <FiSearch className="empty-icon-lg" />
             <h3>Aucun artisan trouvé</h3>
@@ -270,7 +325,7 @@ export default function ArtisansPage() {
           </div>
         )}
 
-        {!loading && displayed.length > 0 && (
+        {displayed.length > 0 && (
           <div className="artisans-grid">
             {displayed.map(artisan => (
               <ArtisanCard key={artisan.uid} artisan={artisan} userCoords={userCoords} />

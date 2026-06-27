@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getFunctions } from 'firebase/functions';
 
 // Même projet Firebase que l'app mobile et l'admin web
 // Valeurs injectées via variables d'environnement (voir .env.example)
@@ -20,5 +21,9 @@ export const auth    = getAuth(app);
 export const db      = getFirestore(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// Même région que les Cloud Functions (cf. functions/src/search/searchArtisans.ts)
+// — doit rester identique côté mobile (FirebaseFunctions.instanceFor(region: 'europe-west1')).
+export const functions = getFunctions(app, 'europe-west1');
 
 export default app;

@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
   collection, query, where,
   getDocs, doc, getDoc,
 } from 'firebase/firestore';
-import { db } from '../firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../firebase';
 
 /**
  * Fusionne un doc users + un doc pros en un objet artisan unifié.
@@ -72,6 +73,16 @@ export function useArtisans() {
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState(null);
 
+  // ── Recherche serveur (100% Firebase, sur TOUTE la base) ──
+  // Miroir exact de SearchService (mobile) : la Cloud Function `searchArtisans`
+  // renvoie uniquement {uid, score} triés par pertinence ; on "hydrate" ensuite
+  // chaque uid en document complet via Firestore, en conservant l'ordre serveur.
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching]         = useState(false);
+  const [searchError, setSearchError]     = useState(null);
+  const [searchTotal, setSearchTotal]     = useState(0);
+  const searchTokenRef = useRef(0);
+
   /**
    * Charge TOUS les artisans actifs en une seule requête Firestore.
    * — Pas de orderBy → aucun artisan exclu pour champ manquant
@@ -104,6 +115,60 @@ export function useArtisans() {
     setDisplayCount(c => c + PAGE_STEP);
   }, []);
 
+  /**
+   * Recherche server-side sur TOUTE la base via la Cloud Function `searchArtisans`
+   * (même fonction que l'app mobile — voir functions/src/search/searchArtisans.ts).
+   * Un jeton incrémental ignore les réponses devenues obsolètes (recherche
+   * suivante lancée avant que la précédente n'ait répondu).
+   */
+  const searchArtisansServer = useCallback(async (params = {}) => {
+    const token = ++searchTokenRef.current;
+    setSearching(true);
+    setSearchError(null);
+    try {
+      const callable = httpsCallable(functions, 'searchArtisans');
+      const response = await callable({
+        requete: params.requete || '',
+        type: params.type || 'general',
+        ...(params.categorie ? { categorie: params.categorie } : {}),
+        ...(params.ville ? { ville: params.ville } : {}),
+        certifieSeulement: !!params.certifieSeulement,
+        boostSeulement: !!params.boostSeulement,
+        ...(params.noteMin > 0 ? { noteMin: params.noteMin } : {}),
+        limite: params.limite || 60,
+      });
+
+      if (token !== searchTokenRef.current) return; // réponse obsolète
+
+      const data = response.data || {};
+      const rawResults = Array.isArray(data.results) ? data.results : [];
+      const uids = rawResults.map(r => r?.uid).filter(Boolean);
+
+      const hydrated = await hydrateByUids(uids);
+      if (token !== searchTokenRef.current) return; // obsolète après l'hydratation
+
+      setSearchResults(hydrated);
+      setSearchTotal(typeof data.total === 'number' ? data.total : hydrated.length);
+    } catch (e) {
+      if (token !== searchTokenRef.current) return;
+      console.error('Erreur recherche serveur:', e);
+      setSearchResults([]);
+      setSearchTotal(0);
+      setSearchError('Recherche momentanément indisponible. Vérifiez votre connexion et réessayez.');
+    } finally {
+      if (token === searchTokenRef.current) setSearching(false);
+    }
+  }, []);
+
+  /** Réinitialise l'état de recherche (retour à l'affichage local paginé). */
+  const clearSearch = useCallback(() => {
+    searchTokenRef.current++; // invalide toute recherche en cours
+    setSearchResults([]);
+    setSearching(false);
+    setSearchError(null);
+    setSearchTotal(0);
+  }, []);
+
   return {
     allArtisans,
     displayCount,
@@ -111,6 +176,13 @@ export function useArtisans() {
     error,
     loadArtisans,
     loadMore,
+    // Recherche serveur
+    searchResults,
+    searching,
+    searchError,
+    searchTotal,
+    searchArtisansServer,
+    clearSearch,
   };
 }
 
@@ -163,4 +235,36 @@ async function fetchAndMerge(userDocs) {
     const proData = proSnaps[i]?.exists() ? proSnaps[i].data() : {};
     return mergeArtisan(u, proData);
   });
+}
+
+/**
+ * Récupère les documents users/{uid} + pros/{uid} pour chaque uid renvoyé par
+ * la Cloud Function searchArtisans, EN CONSERVANT L'ORDRE DE PERTINENCE
+ * déterminé côté serveur — miroir exact de SearchService._hydrate (mobile).
+ */
+async function hydrateByUids(uids) {
+  if (!uids || uids.length === 0) return [];
+
+  const settled = await Promise.all(
+    uids.map(async (uid) => {
+      try {
+        const [userSnap, proSnap] = await Promise.all([
+          getDoc(doc(db, 'users', uid)),
+          getDoc(doc(db, 'pros', uid)),
+        ]);
+        if (!userSnap.exists()) return null;
+        const userDoc = { id: userSnap.id, ...userSnap.data() };
+        const proData = proSnap.exists() ? proSnap.data() : {};
+        return mergeArtisan(userDoc, proData);
+      } catch {
+        return null; // doc supprimé entre-temps ou erreur réseau ponctuelle
+      }
+    })
+  );
+
+  const byUid = new Map();
+  settled.forEach(a => { if (a) byUid.set(a.uid, a); });
+
+  // Reconstituer la liste dans l'ordre exact renvoyé par le serveur.
+  return uids.map(uid => byUid.get(uid)).filter(Boolean);
 }
